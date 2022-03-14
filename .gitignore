@@ -1,0 +1,8 @@
+.idea/
+*/__pycache__
+mnist_project/mnist_data
+*/.ipynb_checkpoints/
+Datasets/
+LogFiles/*
+Network_Learning/fcn/results/*
+Network_Learning/fcn/save_weights/*
