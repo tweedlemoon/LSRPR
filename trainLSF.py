@@ -1,6 +1,7 @@
 from hyper_parameters import *
 import argparse
-from steps import *
+import steps.make_data as make_data
+from utils.timer import Timer
 
 
 def parse_args():
@@ -38,6 +39,8 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
+    make_data.MakeData(args=args)
+
     os.environ["CUDA_VISIBLE_DEVICES"] = args.which_gpu
 
     pass
