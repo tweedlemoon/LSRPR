@@ -8,8 +8,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch fcn training")
 
     parser.add_argument("--which-gpu", default=Which_GPU, type=str, help="which gpu to use")
-    parser.add_argument("--data-path", default=VOC_Dataset_Root, help="VOCdevkit root")
-    parser.add_argument("--num-classes", default=20, type=int)
+    parser.add_argument("--dataset", default=Data_Name, type=str, choices=["voc2012", ], help="which dataset to use")
+    parser.add_argument("--data-path", default=Data_Root, help="data root")
+    parser.add_argument("--num-classes", default=Class_Num, type=int)
     parser.add_argument("--aux", default=True, type=bool, help="auxilier loss")
     parser.add_argument("--device", default=str(Device), type=str, help="training device")
     parser.add_argument("-b", "--batch-size", default=Batch_Size, type=int)
@@ -39,10 +40,13 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    make_data.MakeData(args=args)
-
+    # use which GPU and initial
     os.environ["CUDA_VISIBLE_DEVICES"] = args.which_gpu
+    print(args)
+    timer = Timer("Working begin.")
 
+    # Step1: Make train & val datasets.
+    Data = make_data.MakeData(args=args)
     pass
 
     # main(args)
