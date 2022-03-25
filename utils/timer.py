@@ -1,4 +1,5 @@
 import time
+import torch
 
 
 class Timer:
@@ -7,6 +8,7 @@ class Timer:
         This is a timer to estimate the time some step use.
         :param starting_msg: str:Deploy a message on the console.
         """
+        torch.cuda.synchronize() if torch.cuda.is_available() else None
         self.start = time.time()
         self.stage_start = self.start
         self.elapsed = None
@@ -31,6 +33,7 @@ class Timer:
         elapsed: current time minus begin time
         'est' means estimate, this function estimate total time and remaining time.
         """
+        torch.cuda.synchronize() if torch.cuda.is_available() else None
         self.elapsed = time.time() - self.start
         self.est_total = self.elapsed / progress
         self.est_remaining = self.est_total - self.elapsed
@@ -44,6 +47,7 @@ class Timer:
         """
         :return: float(time):the time this stage costs.
         """
+        torch.cuda.synchronize() if torch.cuda.is_available() else None
         return time.time() - self.stage_start
 
     def reset_stage(self):
@@ -56,6 +60,12 @@ class Timer:
         """
         :return: float(time): when begin a new stage, execute this function.
         """
+        torch.cuda.synchronize() if torch.cuda.is_available() else None
         out = time.time() - self.stage_start
         self.stage_start = time.time()
         return out
+
+    @staticmethod
+    def get_current_time():
+        torch.cuda.synchronize() if torch.cuda.is_available() else None
+        return time.time()

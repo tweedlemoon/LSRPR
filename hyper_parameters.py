@@ -23,23 +23,32 @@ if not os.path.exists("./save_weights"):
 parameters
 In this part , all the hyper parameters are listed here.
 '''
-# which gpu to use, 0 default. Multi-gpu is not supported in this project.(To difficult for me, LOL)
+# which gpu to use, 0 default. Multi-gpu is not supported in this project.
 Which_GPU = "0"
 # which dataset to use
-Data_Name = "voc2012"
+Data_Name = "DRIVE"
 # which backbone to use
-Back_Bone = "fcn"
+Back_Bone = "unet"
+# FCN use Aux.
+Aux = True if Back_Bone == "fcn" else False
 # learning rate initially, it will decrease when training
-Initial_Learning_Rate = 0.0001
+Initial_Learning_Rate = 0.01
 # batchsize
 Batch_Size = 16
 # epoch number
-Epoch = 4
+Epoch = 50
 # use when debugging, it's to print messages on the console
 Print_Frequency = 10
 # device
 Device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+# use cuda.amp?
+Cuda_Amp = False
+# resume?
+# 是否是resume，如果是resume恢复训练，则resume下填写恢复路径（是一个pth文件）
+Resume = ""
+Start_Epoch = 0
+if Resume != "":
+    Start_Epoch = torch.load(Resume, map_location='cpu')['epoch'] + 1
 '''
 paths and files
 In this part , all the directory of this projects are listed here.
@@ -65,6 +74,14 @@ if Data_Name == "voc2012":
     Data_Root = VOC_Dataset_Root
     # VOC2012 has 20 classes to detect.
     Class_Num = 20
+elif Data_Name == "DRIVE":
+    # part:DRIVE Dataset
+    if platform.system() == "Windows":
+        Data_Path = "E:/Datasets/"
+    else:
+        Data_Path = "/Data20T/data20t/data20t/Liuyifei/Datasets"
+    Data_Root = Data_Path
+    Class_Num = 1
 
 # part:pretrained FCN with ResNet50&101 by the COCO dataset
 # os judge

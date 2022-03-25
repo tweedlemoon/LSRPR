@@ -1,6 +1,7 @@
 import os
 import time
 import torch
+import numpy as np
 import torch.utils.data as data
 from PIL import Image
 from utils.timer import Timer
@@ -116,6 +117,65 @@ class VOCSegmentation(data.Dataset):
         return batched_imgs, batched_targets
 
 
+class DriveDataset(data.Dataset):
+    def __init__(self, root: str, train: bool, transforms=None):
+        super(DriveDataset, self).__init__()
+        self.flag = "training" if train else "test"
+        data_root = os.path.join(root, "DRIVE", self.flag)
+        assert os.path.exists(data_root), f"path '{data_root}' does not exists."
+        self.transforms = transforms
+        img_names = [i for i in os.listdir(os.path.join(data_root, "images")) if i.endswith(".tif")]
+        self.img_list = [os.path.join(data_root, "images", i) for i in img_names]
+        self.manual = [os.path.join(data_root, "1st_manual", i.split("_")[0] + "_manual1.gif")
+                       for i in img_names]
+        # check files
+        for i in self.manual:
+            if os.path.exists(i) is False:
+                raise FileNotFoundError(f"file {i} does not exists.")
+
+        self.roi_mask = [os.path.join(data_root, "mask", i.split("_")[0] + f"_{self.flag}_mask.gif")
+                         for i in img_names]
+        # check files
+        for i in self.roi_mask:
+            if os.path.exists(i) is False:
+                raise FileNotFoundError(f"file {i} does not exists.")
+
+    def __getitem__(self, idx):
+        img = Image.open(self.img_list[idx]).convert('RGB')
+        manual = Image.open(self.manual[idx]).convert('L')
+        manual = np.array(manual) / 255
+        roi_mask = Image.open(self.roi_mask[idx]).convert('L')
+        roi_mask = 255 - np.array(roi_mask)
+        mask = np.clip(manual + roi_mask, a_min=0, a_max=255)
+
+        # 这里转回PIL的原因是，transforms中是对PIL数据进行处理
+        mask = Image.fromarray(mask)
+
+        if self.transforms is not None:
+            img, mask = self.transforms(img, mask)
+
+        return img, mask
+
+    def __len__(self):
+        return len(self.img_list)
+
+    @staticmethod
+    def cat_list(images, fill_value=0):
+        max_size = tuple(max(s) for s in zip(*[img.shape for img in images]))
+        batch_shape = (len(images),) + max_size
+        batched_imgs = images[0].new(*batch_shape).fill_(fill_value)
+        for img, pad_img in zip(images, batched_imgs):
+            pad_img[..., :img.shape[-2], :img.shape[-1]].copy_(img)
+        return batched_imgs
+
+    @staticmethod
+    def collate_fn(batch):
+        images, targets = list(zip(*batch))
+        batched_imgs = DriveDataset.cat_list(images, fill_value=0)
+        batched_targets = DriveDataset.cat_list(targets, fill_value=255)
+        return batched_imgs, batched_targets
+
+
 class MakeData:
     def __init__(self, args):
         self.train_dataset = None
@@ -125,6 +185,8 @@ class MakeData:
 
         if args.dataset == "voc2012":
             self.make_voc2012(args=args)
+        elif args.dataset == "DRIVE":
+            self.make_DRIVE(args=args)
 
     def make_voc2012(self, args):
         print("Start making voc2012 data...")
@@ -133,19 +195,15 @@ class MakeData:
         # 此处指定了transform，使用函数get_transform指定，对train和val使用不同的transform
         self.train_dataset = VOCSegmentation(args.data_path,
                                              year="2012",
-                                             transforms=get_transform(train=True),
+                                             transforms=voc_get_transform(train=True),
                                              txt_name="train.txt")
 
         # VOCdevkit -> VOC2012 -> ImageSets -> Segmentation -> val.txt
         self.val_dataset = VOCSegmentation(args.data_path,
                                            year="2012",
-                                           transforms=get_transform(train=False),
+                                           transforms=voc_get_transform(train=False),
                                            txt_name="val.txt")
 
-        # 已经做完了一半
-        timer.update_progress(0.5)
-        print("Have used time: " + str(int(timer.get_stage_elapsed())) + " seconds."
-              + "Estimated over time: " + str(time.ctime(timer.est_finish)))
         # 这里把workernum以cpu数量，batchsize和8中的最小值进行选取
         # numworkers主要用于数据导入，数量恰好才是最高效的
         num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
@@ -162,5 +220,33 @@ class MakeData:
                                                       pin_memory=True,
                                                       collate_fn=self.val_dataset.collate_fn)
 
-        print("Making data finished at: " + str(time.ctime(time.time())))
+        print("Making data finished at: " + str(time.ctime(timer.get_current_time())))
+        print("Time using: " + str(timer.get_stage_elapsed()))
+        print('Done.')
+
+    def make_DRIVE(self, args):
+        print("Start making DRIVE data...")
+        timer = Timer('Stage: Make Data ')
+        self.train_dataset = DriveDataset(args.data_path,
+                                          train=True,
+                                          transforms=drive_get_transform(train=True))
+
+        self.val_dataset = DriveDataset(args.data_path,
+                                        train=False,
+                                        transforms=drive_get_transform(train=False))
+        num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
+        self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
+                                                        batch_size=args.batch_size,
+                                                        num_workers=num_workers,
+                                                        shuffle=True,
+                                                        pin_memory=True,
+                                                        collate_fn=self.train_dataset.collate_fn)
+
+        self.val_loader = torch.utils.data.DataLoader(self.val_dataset,
+                                                      batch_size=1,
+                                                      num_workers=num_workers,
+                                                      pin_memory=True,
+                                                      collate_fn=self.val_dataset.collate_fn)
+        print("Making data finished at: " + str(time.ctime(timer.get_current_time())))
+        print("Time using: " + str(timer.get_stage_elapsed()))
         print('Done.')
