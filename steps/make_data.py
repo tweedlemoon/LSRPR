@@ -1,11 +1,13 @@
 import os
 import time
-import torch
+
 import numpy as np
+import torch
 import torch.utils.data as data
 from PIL import Image
-from utils.timer import Timer
+
 from utils.picture_pre_process import *
+from utils.timer import Timer
 
 
 # 把下面这行打开，即可看到pytorch封装的VOCSegmentation类，这里把它重写了

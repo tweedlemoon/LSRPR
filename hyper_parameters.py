@@ -1,5 +1,6 @@
 import os
 import platform
+
 import torch
 
 '''
@@ -34,15 +35,17 @@ Aux = True if Back_Bone == "fcn" else False
 # learning rate initially, it will decrease when training
 Initial_Learning_Rate = 0.01
 # batchsize
-Batch_Size = 16
+Batch_Size = 2
 # epoch number
 Epoch = 50
 # use when debugging, it's to print messages on the console
-Print_Frequency = 10
+Print_Frequency = 1
 # device
 Device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # use cuda.amp?
 Cuda_Amp = False
+# loss function
+Loss_Function = "dice"
 # resume?
 # 是否是resume，如果是resume恢复训练，则resume下填写恢复路径（是一个pth文件）
 Resume = ""

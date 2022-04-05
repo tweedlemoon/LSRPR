@@ -1,8 +1,9 @@
-from hyper_parameters import *
 import argparse
+
+from hyper_parameters import *
 from steps.make_data import MakeData
 from steps.make_net import MakeNet
-from steps.train_model import train_model
+from steps.train_eval_model import train_eval_model
 from utils.timer import Timer
 
 
@@ -18,6 +19,9 @@ def parse_args():
     parser.add_argument("--back-bone", default=Back_Bone, type=str, choices=["fcn", "unet", ])
     # Here is the auxilier loss, which is used in the pytorch official source code only in the fcn net.
     parser.add_argument("--aux", default=Aux, type=bool, help="auxilier loss")
+    parser.add_argument("--loss-function", default=Loss_Function, type=str,
+                        help="choose which loss function to use.", choices=["dice", "levelset", ])
+
     parser.add_argument("-b", "--batch-size", default=Batch_Size, type=int)
     parser.add_argument("--epochs", default=Epoch, type=int, metavar="N",
                         help="number of total epochs to train")
@@ -34,6 +38,7 @@ def parse_args():
     parser.add_argument('--resume', default=Resume, help='resume from checkpoint')
     parser.add_argument('--start-epoch', default=Start_Epoch, type=int, metavar='N',
                         help='start epoch')
+    parser.add_argument('--save-best', default=True, type=bool, help='only save best dice weights')
     # Mixed precision training parameters
     parser.add_argument("--amp", default=Cuda_Amp, type=bool,
                         help="Use torch.cuda.amp for mixed precision training")
@@ -64,6 +69,6 @@ if __name__ == '__main__':
 
     # Step3: Train.
     print("----------------------------------\n" + "STAGE 3: Start training.")
-    train_model(args=args, Data=Data, Net=Net)
+    train_eval_model(args=args, Data=Data, Net=Net)
 
     pass

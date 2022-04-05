@@ -1,8 +1,9 @@
-import os
 import time
+
 import torch
-from utils.timer import Timer
+
 from backbones.unet import create_unet_model
+from utils.timer import Timer
 
 
 class MakeNet:
@@ -54,9 +55,11 @@ class MakeNet:
         print(self.model)
 
     def params_trace(self):
+        # 返回哪些值需要梯度更新
         self.params_to_optimize = [p for p in self.model.parameters() if p.requires_grad]
 
     def resume_data_load(self, args):
+        # 如果是继续训练，则从这里恢复数据
         checkpoint = torch.load(args.resume, map_location='cpu')
         self.model.load_state_dict(checkpoint['model'])
         self.optimizer.load_state_dict(checkpoint['optimizer'])
