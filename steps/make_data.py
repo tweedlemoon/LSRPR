@@ -6,7 +6,7 @@ import torch
 import torch.utils.data as data
 from PIL import Image
 
-from utils.picture_pre_process import *
+from src.get_transforms import *
 from utils.timer import Timer
 
 
@@ -145,9 +145,12 @@ class DriveDataset(data.Dataset):
     def __getitem__(self, idx):
         img = Image.open(self.img_list[idx]).convert('RGB')
         manual = Image.open(self.manual[idx]).convert('L')
+        # /255即是manual中黑色为0，血管处白色为1
         manual = np.array(manual) / 255
         roi_mask = Image.open(self.roi_mask[idx]).convert('L')
+        # 取反色，将中间置黑0，四周置白255
         roi_mask = 255 - np.array(roi_mask)
+        # clip函数，设定numpy的上下界，这里是将manual+roi_mask的上界限设为255，下界限设为0，存在mask中
         mask = np.clip(manual + roi_mask, a_min=0, a_max=255)
 
         # 这里转回PIL的原因是，transforms中是对PIL数据进行处理

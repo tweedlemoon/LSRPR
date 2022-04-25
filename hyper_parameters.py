@@ -37,7 +37,7 @@ Initial_Learning_Rate = 0.01
 # batchsize
 Batch_Size = 2
 # epoch number
-Epoch = 50
+Epoch = 300
 # use when debugging, it's to print messages on the console
 Print_Frequency = 1
 # device
@@ -82,7 +82,8 @@ elif Data_Name == "DRIVE":
     if platform.system() == "Windows":
         Data_Path = "E:/Datasets/"
     else:
-        Data_Path = "/Data20T/data20t/data20t/Liuyifei/Datasets"
+        # Data_Path = "/Data20T/data20t/data20t/Liuyifei/Datasets"
+        Data_Path = "/root/autodl-tmp"
     Data_Root = Data_Path
     Class_Num = 1
 

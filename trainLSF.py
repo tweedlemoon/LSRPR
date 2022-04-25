@@ -71,4 +71,3 @@ if __name__ == '__main__':
     print("----------------------------------\n" + "STAGE 3: Start training.")
     train_eval_model(args=args, Data=Data, Net=Net)
 
-    pass

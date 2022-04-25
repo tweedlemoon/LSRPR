@@ -100,3 +100,19 @@ class UNet(nn.Module):
 def create_unet_model(num_classes):
     model = UNet(in_channels=3, num_classes=num_classes, base_c=32)
     return model
+
+
+if __name__ == "__main__":
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    # debug测试
+    # 创建一个4分类的unet
+    unet = create_unet_model(num_classes=21).to(device)
+    # 打印网络
+    print(unet)
+
+    dummy_input = torch.randn(2, 3, 480, 480).to(device)
+
+    # 测试
+    print("Input size:", dummy_input.shape)
+    ret = unet(dummy_input)
+    print("Output size:", ret["out"].shape)

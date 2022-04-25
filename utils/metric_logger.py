@@ -157,6 +157,8 @@ class MetricLogger(object):
             ])
         MB = 1024.0 * 1024.0
         for obj in iterable:
+            # 这里是此函数能迭代的关键，yield
+            # yield的意思是按需生成部分结果，可以被for循环中的迭代器识别
             data_time.update(time.time() - end)
             yield obj
             iter_time.update(time.time() - end)

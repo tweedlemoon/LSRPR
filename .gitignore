@@ -144,3 +144,6 @@ cython_debug/
 .idea/
 LogFiles/*
 results/*
+save_weights/*
+test_picture/*
+experimental_data/*

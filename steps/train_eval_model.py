@@ -3,7 +3,7 @@ import os
 
 import torch
 
-from steps.loss import criterion
+from src.loss import criterion
 from steps.make_data import MakeData
 from steps.make_net import MakeNet
 from utils.eval_utils import ConfusionMatrix, DiceCoefficient
@@ -86,8 +86,7 @@ def train_one_epoch(args, model, optimizer, data_loader, device, epoch, num_clas
         image, target = image.to(device), target.to(device)
         with torch.cuda.amp.autocast(enabled=scaler is not None):
             output = model(image)
-            if args.loss_function == "dice":
-                loss = criterion(output, target, loss_weight, num_classes=num_classes, ignore_index=255)
+            loss = criterion(output, target, loss_weight, num_classes=num_classes, ignore_index=255)
 
         optimizer.zero_grad()
         if scaler is not None:
