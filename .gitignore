@@ -147,3 +147,4 @@ results/*
 save_weights/*
 test_picture/*
 experimental_data/*
+__pychache__/*
