@@ -22,6 +22,7 @@ def parse_args():
     parser.add_argument("--aux", default=Aux, type=bool, help="auxilier loss")
     parser.add_argument("--loss-function", default=Loss_Function, type=str,
                         help="choose which loss function to use.", choices=["dice", "levelset", ])
+    parser.add_argument("--level-set-coe", default=Level_Set_Coe, type=int)
 
     parser.add_argument("-b", "--batch-size", default=Batch_Size, type=int)
     parser.add_argument("--epochs", default=Epoch, type=int, metavar="N",

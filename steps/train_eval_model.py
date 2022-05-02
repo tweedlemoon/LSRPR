@@ -89,7 +89,7 @@ def train_one_epoch(args, model, optimizer, data_loader, device, epoch, num_clas
             # loss = criterion(output, target, loss_weight, num_classes=num_classes, ignore_index=255)
             losses = criterion(output, target, loss_weight, num_classes=num_classes, ignore_index=255)
             # the coefficient of level_set_loss
-            level_set_coe = 1e-6
+            level_set_coe = args.level_set_coe
             loss = losses["ce_loss"] + losses["dice_loss"] + level_set_coe * losses["level_set_loss"]
 
         optimizer.zero_grad()

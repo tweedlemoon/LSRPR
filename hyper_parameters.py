@@ -46,6 +46,8 @@ Device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 Cuda_Amp = False
 # loss function
 Loss_Function = "dice"
+Level_Set_Coe = 1e-6
+
 # resume?
 # 是否是resume，如果是resume恢复训练，则resume下填写恢复路径（是一个pth文件）
 Resume = ""
