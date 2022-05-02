@@ -17,6 +17,7 @@ def parse_args():
     parser.add_argument("--num-classes", default=Class_Num, type=int)
     parser.add_argument("--device", default=str(Device), type=str, help="training device")
     parser.add_argument("--back-bone", default=Back_Bone, type=str, choices=["fcn", "unet", ])
+    parser.add_argument("--pretrained", "-p", default="", type=str, help="if load pretrained model, add here.")
     # Here is the auxilier loss, which is used in the pytorch official source code only in the fcn net.
     parser.add_argument("--aux", default=Aux, type=bool, help="auxilier loss")
     parser.add_argument("--loss-function", default=Loss_Function, type=str,
@@ -70,4 +71,3 @@ if __name__ == '__main__':
     # Step3: Train.
     print("----------------------------------\n" + "STAGE 3: Start training.")
     train_eval_model(args=args, Data=Data, Net=Net)
-

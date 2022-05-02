@@ -41,6 +41,11 @@ class MakeNet:
         if args.resume != "":
             self.resume_data_load(args)
 
+        # 如果要加载预训练模型
+        if args.pretrained != "":
+            pth = torch.load(args.pretrained, map_location=args.device)
+            self.model.load_state_dict(pth['model'])
+
         # 打印完成消息
         print("Making net finished at: " + str(time.ctime(self.timer.get_current_time())))
         print("Time using: " + str(self.timer.get_stage_elapsed()))
