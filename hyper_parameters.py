@@ -48,6 +48,9 @@ Cuda_Amp = False
 Loss_Function = "dice"
 Level_Set_Coe = 1e-6
 
+# pretrained?
+# 如果加载pretrained模型，这里直接填写模型的pth文件路径
+Pretrained = ""
 # resume?
 # 是否是resume，如果是resume恢复训练，则resume下填写恢复路径（是一个pth文件）
 Resume = ""
