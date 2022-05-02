@@ -71,7 +71,6 @@ def train_eval_model(args, Data: MakeData, Net: MakeNet):
 
 def train_one_epoch(args, model, optimizer, data_loader, device, epoch, num_classes,
                     lr_scheduler, print_frequency, scaler=None):
-    #
     model.train()
     metric_logger = MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', SmoothedValue(window_size=1, fmt='{value:.6f}'))
@@ -86,7 +85,12 @@ def train_one_epoch(args, model, optimizer, data_loader, device, epoch, num_clas
         image, target = image.to(device), target.to(device)
         with torch.cuda.amp.autocast(enabled=scaler is not None):
             output = model(image)
-            loss = criterion(output, target, loss_weight, num_classes=num_classes, ignore_index=255)
+            # 老版本loss
+            # loss = criterion(output, target, loss_weight, num_classes=num_classes, ignore_index=255)
+            losses = criterion(output, target, loss_weight, num_classes=num_classes, ignore_index=255)
+            # the coefficient of level_set_loss
+            level_set_coe = 1e-6
+            loss = losses["ce_loss"] + losses["dice_loss"] + level_set_coe * losses["level_set_loss"]
 
         optimizer.zero_grad()
         if scaler is not None:
@@ -100,7 +104,11 @@ def train_one_epoch(args, model, optimizer, data_loader, device, epoch, num_clas
         lr_scheduler.step()
 
         lr = optimizer.param_groups[0]["lr"]
-        metric_logger.update(loss=loss.item(), lr=lr)
+        metric_logger.update(ce_loss=losses["ce_loss"].item(),
+                             dice_loss=losses["dice_loss"].item(),
+                             level_set_loss=losses["level_set_loss"].item(),
+                             loss=loss.item(),
+                             lr=lr)
 
     return metric_logger.meters["loss"].global_avg, lr
 

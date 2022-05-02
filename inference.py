@@ -28,6 +28,7 @@ def parse_arguments():
     parser.add_argument("--data-path", default=Data_Root, help="data root")
     parser.add_argument("--device", default=str(Device), type=str, help="training device")
     # parser.add_argument('--model_path', default="save_weights/best_model_mine.pth", help="the best trained model root")
+    # parser.add_argument('--model_path', default="save_weights/best_model_author.pth", help="the best trained model root")
     parser.add_argument('--model_path', default="save_weights/best_model.pth", help="the best trained model root")
     parser.add_argument("--num-classes", default=Class_Num, type=int)
     parser.add_argument("--dataset", default=Data_Name, type=str, choices=["voc2012", "DRIVE"],

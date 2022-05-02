@@ -12,24 +12,35 @@ def dice_loss(x: torch.Tensor, target: torch.Tensor, multiclass: bool = False, i
     return 1 - fn(x, target, ignore_index=ignore_index)
 
 
+# def criterion(inputs, target, loss_weight=None, num_classes: int = 2, dice: bool = True, ignore_index: int = -100):
+#     losses = {}
+#     for name, x in inputs.items():
+#         # 忽略target中值为255的像素，255的像素是目标边缘或者padding填充
+#         # loss = functional.cross_entropy(x, target, ignore_index=ignore_index, weight=loss_weight)
+#         target = torch.where(target == 255, 0, target)
+#         loss = functional.cross_entropy(x, target, weight=loss_weight)
+#         if dice is True:
+#             dice_target = build_target(target, num_classes, ignore_index)
+#             loss += dice_loss(x, dice_target, multiclass=True, ignore_index=ignore_index)
+#         losses[name] = loss
+#     losses["levelset"] = level_set_loss_compute(inputs)
+#     # losses["levelset"] = level_set_loss_compute(inputs, target)
+#     if len(losses) == 1:
+#         return losses['out']
+#
+#     return losses["out"] + 1e-6 * losses["levelset"]
+#     # return losses['out'] + 0.5 * losses['aux']
+
 def criterion(inputs, target, loss_weight=None, num_classes: int = 2, dice: bool = True, ignore_index: int = -100):
     losses = {}
-    for name, x in inputs.items():
-        # 忽略target中值为255的像素，255的像素是目标边缘或者padding填充
-        # loss = functional.cross_entropy(x, target, ignore_index=ignore_index, weight=loss_weight)
-        target = torch.where(target == 255, 0, target)
-        loss = functional.cross_entropy(x, target, weight=loss_weight)
-        if dice is True:
-            dice_target = build_target(target, num_classes, ignore_index)
-            loss += dice_loss(x, dice_target, multiclass=True, ignore_index=ignore_index)
-        losses[name] = loss
-    losses["levelset"] = level_set_loss_compute(inputs)
-    # losses["levelset"] = level_set_loss_compute(inputs, target)
-    if len(losses) == 1:
-        return losses['out']
-
-    return losses["out"] + 1e-6 * losses["levelset"]
-    # return losses['out'] + 0.5 * losses['aux']
+    x = inputs["out"]
+    target = torch.where(target == 255, 0, target)
+    losses["ce_loss"] = functional.cross_entropy(x, target, weight=loss_weight)
+    losses["level_set_loss"] = level_set_loss_compute(inputs)
+    if dice is True:
+        dice_target = build_target(target, num_classes, ignore_index)
+        losses["dice_loss"] = dice_loss(x, dice_target, multiclass=True, ignore_index=ignore_index)
+    return losses
 
 
 class LevelSetLoss(nn.Module):

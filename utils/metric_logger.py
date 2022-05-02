@@ -86,6 +86,7 @@ class MetricLogger(object):
         self.delimiter = delimiter
 
     def update(self, **kwargs):
+        # k:key v:value
         for k, v in kwargs.items():
             if isinstance(v, torch.Tensor):
                 v = v.item()
@@ -128,7 +129,7 @@ class MetricLogger(object):
         :param header:
         :return:
         """
-        i = 0
+        i = 1
         if not header:
             header = ''
         start_time = time.time()
