@@ -18,12 +18,13 @@ def parse_args():
     parser.add_argument("--device", default=str(Device), type=str, help="training device")
     parser.add_argument("--back-bone", default=Back_Bone, type=str, choices=["fcn", "unet", ])
     parser.add_argument("--pretrained", "-p", default=Pretrained, type=str, help="if load pretrained model, add here.")
-    # Here is the auxilier loss, which is used in the pytorch official source code only in the fcn net.
+    # Here is the auxilier loss, which is used in the pytorch official source code.
     parser.add_argument("--aux", default=Aux, type=bool, help="auxilier loss")
     parser.add_argument("--loss-function", default=Loss_Function, type=str,
                         help="choose which loss function to use.", choices=["dice", "levelset", ])
     parser.add_argument("--level-set-coe", default=Level_Set_Coe, type=float)
-    parser.add_argument("--loss-weight", default=Loss_Weight, type=list)
+    # loss weight for every class, input should be the same amount of the num_classes+1
+    parser.add_argument("--loss-weight", default=Loss_Weight, type=float, nargs='+')
 
     parser.add_argument("-b", "--batch-size", default=Batch_Size, type=int)
     parser.add_argument("--epochs", default=Epoch, type=int, metavar="N",
