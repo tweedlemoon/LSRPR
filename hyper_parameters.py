@@ -47,6 +47,8 @@ Cuda_Amp = False
 # loss function
 Loss_Function = "dice"
 Level_Set_Coe = 1e-6
+# loss weight
+Loss_Weight = [1.0, 2.0]
 
 # pretrained?
 # 如果加载pretrained模型，这里直接填写模型的pth文件路径

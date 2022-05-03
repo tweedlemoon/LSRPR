@@ -77,7 +77,8 @@ def train_one_epoch(args, model, optimizer, data_loader, device, epoch, num_clas
     header = 'Epoch: [{}]'.format(epoch)
     if num_classes == 2:
         # 设置cross_entropy中背景和前景的loss权重(根据自己的数据集进行设置)
-        loss_weight = torch.as_tensor([1.0, 2.0], device=device)
+        # loss_weight = torch.as_tensor([1.0, 2.0], device=device)
+        loss_weight = torch.as_tensor(args.loss_weight, device=device)
     else:
         loss_weight = None
 
