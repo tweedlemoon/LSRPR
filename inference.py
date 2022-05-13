@@ -10,7 +10,6 @@ from hyper_parameters import *
 from utils.handy_functions import *
 from backbones.unet import create_unet_model
 import PIL
-from PIL import Image
 from torchvision import transforms
 
 from steps.make_data import MakeData
@@ -47,16 +46,7 @@ def run_inference(args):
     pth = torch.load(args.model_path, map_location=device)
     model.load_state_dict(pth['model'])
 
-    # 单张图片测试
-    # # load picture
-    # img_input = Image.open(img_path).convert('RGB')
-    # val_range(name="input image", input_val=img_input)
-    # data_transform = transforms.Compose([transforms.ToTensor(),
-    #                                      transforms.Normalize(mean=mean, std=std)])
-    # img = data_transform(img_input)
-    # # batch_size=1扩充出来
-    # img = torch.unsqueeze(img, dim=0).to(device)
-    # val_range("standard img", img)
+
 
     # 多张图片测试，直接制作dataloader
     val_loader = MakeData(args=args).val_loader
@@ -66,8 +56,8 @@ def run_inference(args):
             original_img = val_loader.dataset.img_list[idx]
             ground_truth = val_loader.dataset.manual[idx]
             roi_mask = val_loader.dataset.roi_mask[idx]
-            original_img = Image.open(original_img)
-            ground_truth = Image.open(ground_truth)
+            original_img = PIL.Image.open(original_img)
+            ground_truth = PIL.Image.open(ground_truth)
             # double_img_show(format_convert(original_img), format_convert(ground_truth))
 
             img = img.to(device)
@@ -83,7 +73,7 @@ def run_inference(args):
             val_range("Numpy argmax output", np_argmax_output)
 
             # 把周围跟mask处理一下
-            roi_img = Image.open(roi_mask).convert('L')
+            roi_img = PIL.Image.open(roi_mask).convert('L')
             roi_img = np.array(roi_img)
             np_argmax_output[roi_img == 0] = 0
 
@@ -91,6 +81,16 @@ def run_inference(args):
                             original_mask=format_convert(ground_truth),
                             predicted_img=format_convert(np_argmax_output))
 
+    # # 单张图片测试
+    # # load picture
+    # img_input = PIL.Image.open(img_path).convert('RGB')
+    # val_range(name="input image", input_val=img_input)
+    # data_transform = transforms.Compose([transforms.ToTensor(),
+    #                                      transforms.Normalize(mean=mean, std=std)])
+    # img = data_transform(img_input)
+    # # batch_size=1扩充出来
+    # img = torch.unsqueeze(img, dim=0).to(device)
+    # val_range("standard img", img)
     # model.eval()
     # with torch.no_grad():
     #     # 送入网络后输出，把0维度弄掉，因为batch_size是1
@@ -107,13 +107,13 @@ def run_inference(args):
     #     val_range("Numpy argmax output", np_argmax_output)
     #
     #     # 把周围跟mask处理一下
-    #     roi_img = Image.open(roi_mask_path).convert('L')
+    #     roi_img = PIL.Image.open(roi_mask_path).convert('L')
     #     roi_img = np.array(roi_img)
     #     np_argmax_output[roi_img == 0] = 0
     #
     #     # 载入原图和标准gt，三者展示对比
-    #     original_img = Image.open(img_path)
-    #     ground_truth = Image.open(ground_truth_path)
+    #     original_img = PIL.Image.open(img_path)
+    #     ground_truth = PIL.Image.open(ground_truth_path)
     #     triple_img_show(format_convert(original_img), format_convert(ground_truth), format_convert(np_argmax_output))
 
 

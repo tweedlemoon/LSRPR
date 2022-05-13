@@ -3,6 +3,7 @@ import time
 import torch
 
 from backbones.unet import create_unet_model
+from backbones.r2unet import *
 from utils.timer import Timer
 
 
@@ -21,6 +22,12 @@ class MakeNet:
             self.make_fcn(args)
         elif args.back_bone == "unet":
             self.make_unet(args)
+        elif args.back_bone == "r2unet":
+            self.make_r2unet(args)
+        elif args.back_bone == "attunet":
+            self.make_attunet(args)
+        elif args.back_bone == "r2attunet":
+            self.make_r2attunet(args)
 
         # 追踪迭代的变量作为一个list
         self.params_to_optimize = []
@@ -56,6 +63,21 @@ class MakeNet:
 
     def make_unet(self, args):
         self.model = create_unet_model(num_classes=args.num_classes)
+        self.model.to(args.device)
+        print(self.model)
+
+    def make_r2unet(self, args):
+        self.model = R2U_Net(output_ch=args.num_classes)
+        self.model.to(args.device)
+        print(self.model)
+
+    def make_attunet(self, args):
+        self.model = AttU_Net(output_ch=args.num_classes)
+        self.model.to(args.device)
+        print(self.model)
+
+    def make_r2attunet(self, args):
+        self.model = R2AttU_Net(output_ch=args.num_classes)
         self.model.to(args.device)
         print(self.model)
 

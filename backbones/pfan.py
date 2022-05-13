@@ -3,6 +3,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
 
+"""
+PFAN unused in this project
+"""
+
 vgg_conv1_2 = vgg_conv2_2 = vgg_conv3_3 = vgg_conv4_3 = vgg_conv5_3 = None
 
 
