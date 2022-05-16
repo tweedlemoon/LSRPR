@@ -65,16 +65,14 @@ def train_eval_model(args, Data: MakeData, Net: MakeNet):
             save_file["scaler"] = Net.scaler.state_dict()
 
         if args.save_best is True:
-            file_name = "model-model-{}-coe-{}-time{}-best_dice-{}" \
-                .format(args.back_bone,
-                        args.level_set_coe,
-                        datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
-                        best_dice,
-                        )
             # torch.save(save_file, "save_weights/best_model.pth")
-            if not os.path.exists("save_weights"):
-                os.mkdir("save_weights")
-            torch.save(save_file, os.path.join(".save_weights", file_name))
+            torch.save(save_file, "save_weights/model-{}-coe-{}-time{}-best_dice-{}.pth" \
+                       .format(args.back_bone,
+                               args.level_set_coe,
+                               datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
+                               best_dice,
+                               )
+                       )
         else:
             torch.save(save_file, "save_weights/model_{}.pth".format(epoch))
 
