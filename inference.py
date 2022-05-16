@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 from hyper_parameters import *
 from utils.handy_functions import *
 from backbones.unet import create_unet_model
+from backbones.r2unet import *
 import PIL
 from torchvision import transforms
 
@@ -42,7 +43,9 @@ def run_inference(args):
     std = (0.127, 0.079, 0.043)
 
     # load model
-    model = create_unet_model(num_classes=args.num_classes + 1).to(device)
+    # model = create_unet_model(num_classes=args.num_classes + 1).to(device)
+    model = AttU_Net(output_ch=2).to(device)
+
     pth = torch.load(args.model_path, map_location=device)
     model.load_state_dict(pth['model'])
 

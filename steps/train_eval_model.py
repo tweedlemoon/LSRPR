@@ -64,15 +64,21 @@ def train_eval_model(args, Data: MakeData, Net: MakeNet):
         if args.amp:
             save_file["scaler"] = Net.scaler.state_dict()
 
+        last_pth = ""
         if args.save_best is True:
             # torch.save(save_file, "save_weights/best_model.pth")
-            torch.save(save_file, "save_weights/model-{}-coe-{}-time{}-best_dice-{}.pth" \
-                       .format(args.back_bone,
-                               args.level_set_coe,
-                               datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
-                               best_dice,
-                               )
-                       )
+            cur_pth = "save_weights/model-{}-coe-{}-time{}-best_dice-{}.pth" \
+                .format(args.back_bone,
+                        args.level_set_coe,
+                        datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
+                        best_dice,
+                        )
+            torch.save(save_file, "save_weights/" + cur_pth)
+
+            if last_pth != "":
+                os.remove("save_weights/" + last_pth)
+                last_pth = cur_pth
+
         else:
             torch.save(save_file, "save_weights/model_{}.pth".format(epoch))
 
