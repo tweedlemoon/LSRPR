@@ -110,7 +110,7 @@ if __name__ == "__main__":
     # 打印网络
     print(unet)
 
-    dummy_input = torch.randn(2, 3, 480, 480).to(device)
+    dummy_input = torch.randn(2, 3, 584, 565).to(device)
 
     # 测试
     print("Input size:", dummy_input.shape)

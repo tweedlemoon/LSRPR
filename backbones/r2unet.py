@@ -1,6 +1,37 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from utils.handy_functions import init_weights
+
+
+class Pad(nn.Module):
+    def __init__(self):
+        super(Pad, self).__init__()
+
+    def forward(self, x1: torch.Tensor, x2: torch.Tensor) -> torch.Tensor:
+        diff_y = x2.size()[2] - x1.size()[2]
+        diff_x = x2.size()[3] - x1.size()[3]
+
+        # padding_left, padding_right, padding_top, padding_bottom
+        x1 = F.pad(x1, [diff_x // 2, diff_x - diff_x // 2,
+                        diff_y // 2, diff_y - diff_y // 2])
+        return x1
+
+
+class PadAndCat(nn.Module):
+    def __init__(self):
+        super(PadAndCat, self).__init__()
+
+    def forward(self, x1: torch.Tensor, x2: torch.Tensor) -> torch.Tensor:
+        diff_y = x2.size()[2] - x1.size()[2]
+        diff_x = x2.size()[3] - x1.size()[3]
+
+        # padding_left, padding_right, padding_top, padding_bottom
+        x1 = F.pad(x1, [diff_x // 2, diff_x - diff_x // 2,
+                        diff_y // 2, diff_y - diff_y // 2])
+
+        x = torch.cat([x2, x1], dim=1)
+        return x
 
 
 class conv_block(nn.Module):
@@ -142,6 +173,8 @@ class U_Net(nn.Module):
 
         self.Conv_1x1 = nn.Conv2d(64, output_ch, kernel_size=1, stride=1, padding=0)
 
+        self.PadAndCat = PadAndCat()
+
     def forward(self, x):
         # encoding path
         x1 = self.Conv1(x)
@@ -160,20 +193,24 @@ class U_Net(nn.Module):
 
         # decoding + concat path
         d5 = self.Up5(x5)
-        d5 = torch.cat((x4, d5), dim=1)
+        # d5 = torch.cat((x4, d5), dim=1)
+        d5 = self.PadAndCat(d5, x4)
 
         d5 = self.Up_conv5(d5)
 
         d4 = self.Up4(d5)
-        d4 = torch.cat((x3, d4), dim=1)
+        # d4 = torch.cat((x3, d4), dim=1)
+        d4 = self.PadAndCat(d4, x3)
         d4 = self.Up_conv4(d4)
 
         d3 = self.Up3(d4)
-        d3 = torch.cat((x2, d3), dim=1)
+        # d3 = torch.cat((x2, d3), dim=1)
+        d3 = self.PadAndCat(d3, x2)
         d3 = self.Up_conv3(d3)
 
         d2 = self.Up2(d3)
-        d2 = torch.cat((x1, d2), dim=1)
+        # d2 = torch.cat((x1, d2), dim=1)
+        d2 = self.PadAndCat(d2, x1)
         d2 = self.Up_conv2(d2)
 
         d1 = self.Conv_1x1(d2)
@@ -214,6 +251,8 @@ class R2U_Net(nn.Module):
 
         self.Conv_1x1 = nn.Conv2d(64, output_ch, kernel_size=1, stride=1, padding=0)
 
+        self.PadAndCat = PadAndCat()
+
     def forward(self, x):
         # encoding path
         x1 = self.RRCNN1(x)
@@ -232,19 +271,23 @@ class R2U_Net(nn.Module):
 
         # decoding + concat path
         d5 = self.Up5(x5)
-        d5 = torch.cat((x4, d5), dim=1)
+        # d5 = torch.cat((x4, d5), dim=1)
+        d5 = self.PadAndCat(d5, x4)
         d5 = self.Up_RRCNN5(d5)
 
         d4 = self.Up4(d5)
-        d4 = torch.cat((x3, d4), dim=1)
+        # d4 = torch.cat((x3, d4), dim=1)
+        d4 = self.PadAndCat(d4, x3)
         d4 = self.Up_RRCNN4(d4)
 
         d3 = self.Up3(d4)
-        d3 = torch.cat((x2, d3), dim=1)
+        # d3 = torch.cat((x2, d3), dim=1)
+        d3 = self.PadAndCat(d3, x2)
         d3 = self.Up_RRCNN3(d3)
 
         d2 = self.Up2(d3)
-        d2 = torch.cat((x1, d2), dim=1)
+        # d2 = torch.cat((x1, d2), dim=1)
+        d2 = self.PadAndCat(d2, x1)
         d2 = self.Up_RRCNN2(d2)
 
         d1 = self.Conv_1x1(d2)
@@ -284,6 +327,9 @@ class AttU_Net(nn.Module):
 
         self.Conv_1x1 = nn.Conv2d(64, output_ch, kernel_size=1, stride=1, padding=0)
 
+        self.PadAndCat = PadAndCat()
+        self.Pad = Pad()
+
     def forward(self, x):
         # encoding path
         x1 = self.Conv1(x)
@@ -302,23 +348,31 @@ class AttU_Net(nn.Module):
 
         # decoding + concat path
         d5 = self.Up5(x5)
+        d5 = self.Pad(d5, x4)
         x4 = self.Att5(g=d5, x=x4)
-        d5 = torch.cat((x4, d5), dim=1)
+        # d5 = torch.cat((x4, d5), dim=1)
+        d5 = self.PadAndCat(d5, x4)
         d5 = self.Up_conv5(d5)
 
         d4 = self.Up4(d5)
+        d4 = self.Pad(d4, x3)
         x3 = self.Att4(g=d4, x=x3)
-        d4 = torch.cat((x3, d4), dim=1)
+        # d4 = torch.cat((x3, d4), dim=1)
+        d4 = self.PadAndCat(d4, x3)
         d4 = self.Up_conv4(d4)
 
         d3 = self.Up3(d4)
+        d3 = self.Pad(d3, x2)
         x2 = self.Att3(g=d3, x=x2)
-        d3 = torch.cat((x2, d3), dim=1)
+        # d3 = torch.cat((x2, d3), dim=1)
+        d3 = self.PadAndCat(d3, x2)
         d3 = self.Up_conv3(d3)
 
         d2 = self.Up2(d3)
+        d2 = self.Pad(d2, x1)
         x1 = self.Att2(g=d2, x=x1)
-        d2 = torch.cat((x1, d2), dim=1)
+        # d2 = torch.cat((x1, d2), dim=1)
+        d2 = self.PadAndCat(d2, x1)
         d2 = self.Up_conv2(d2)
 
         d1 = self.Conv_1x1(d2)
@@ -362,6 +416,9 @@ class R2AttU_Net(nn.Module):
 
         self.Conv_1x1 = nn.Conv2d(64, output_ch, kernel_size=1, stride=1, padding=0)
 
+        self.PadAndCat = PadAndCat()
+        self.Pad = Pad()
+
     def forward(self, x):
         # encoding path
         x1 = self.RRCNN1(x)
@@ -380,23 +437,31 @@ class R2AttU_Net(nn.Module):
 
         # decoding + concat path
         d5 = self.Up5(x5)
+        d5 = self.Pad(d5, x4)
         x4 = self.Att5(g=d5, x=x4)
-        d5 = torch.cat((x4, d5), dim=1)
+        # d5 = torch.cat((x4, d5), dim=1)
+        d5 = self.PadAndCat(d5, x4)
         d5 = self.Up_RRCNN5(d5)
 
         d4 = self.Up4(d5)
+        d4 = self.Pad(d4, x3)
         x3 = self.Att4(g=d4, x=x3)
-        d4 = torch.cat((x3, d4), dim=1)
+        # d4 = torch.cat((x3, d4), dim=1)
+        d4 = self.PadAndCat(d4, x3)
         d4 = self.Up_RRCNN4(d4)
 
         d3 = self.Up3(d4)
+        d3 = self.Pad(d3, x2)
         x2 = self.Att3(g=d3, x=x2)
-        d3 = torch.cat((x2, d3), dim=1)
+        # d3 = torch.cat((x2, d3), dim=1)
+        d3 = self.PadAndCat(d3, x2)
         d3 = self.Up_RRCNN3(d3)
 
         d2 = self.Up2(d3)
+        d2 = self.Pad(d2, x1)
         x1 = self.Att2(g=d2, x=x1)
-        d2 = torch.cat((x1, d2), dim=1)
+        # d2 = torch.cat((x1, d2), dim=1)
+        d2 = self.PadAndCat(d2, x1)
         d2 = self.Up_RRCNN2(d2)
 
         d1 = self.Conv_1x1(d2)
@@ -409,7 +474,7 @@ class R2AttU_Net(nn.Module):
 def test():
     device = "cpu"
     # device = "cuda" if torch.cuda.is_available() else "cpu"
-    dummy_input = torch.randn(2, 3, 480, 480).to(device)
+    dummy_input = torch.randn(2, 3, 584, 565).to(device)
 
     model = R2AttU_Net(output_ch=2).to(device)
     init_weights(net=model, init_type="kaiming")
