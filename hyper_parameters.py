@@ -29,7 +29,7 @@ Which_GPU = "0"
 # which dataset to use
 Data_Name = "DRIVE"
 # which backbone to use
-Back_Bone = "attunet"
+Back_Bone = "unet"
 # FCN use Aux.
 Aux = True if Back_Bone == "fcn" else False
 # learning rate initially, it will decrease when training
@@ -37,16 +37,17 @@ Initial_Learning_Rate = 0.01
 # batchsize
 Batch_Size = 2
 # epoch number
-Epoch = 300
+Epoch = 200
 # use when debugging, it's to print messages on the console
 Print_Frequency = 1
 # device
 Device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # use cuda.amp?
 Cuda_Amp = False
-# loss function
-Loss_Function = "dice"
-Level_Set_Coe = 1e-6
+# 是否使用Dice损失
+Dice = "dice"
+# 0代表不使用水平集损失
+Level_Set_Coe = 0
 # loss weight
 Loss_Weight = [1.0, 2.0]
 

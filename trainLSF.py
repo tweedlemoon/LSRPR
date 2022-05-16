@@ -21,8 +21,8 @@ def parse_args():
     parser.add_argument("--pretrained", "-p", default=Pretrained, type=str, help="if load pretrained model, add here.")
     # Here is the auxilier loss, which is used in the pytorch official source code.
     parser.add_argument("--aux", default=Aux, type=bool, help="auxilier loss")
-    parser.add_argument("--loss-function", default=Loss_Function, type=str,
-                        help="choose which loss function to use.", choices=["dice", "levelset", ])
+    parser.add_argument("--dice", default=Dice, type=str,
+                        help="choose which loss function to use.", choices=["dice", ])
     parser.add_argument("--level-set-coe", default=Level_Set_Coe, type=float)
     # loss weight for every class, input should be the same amount of the num_classes+1
     parser.add_argument("--loss-weight", default=Loss_Weight, type=float, nargs='+')

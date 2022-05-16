@@ -14,7 +14,12 @@ from utils.timer import Timer
 def train_eval_model(args, Data: MakeData, Net: MakeNet):
     best_dice = 0.
     timer = Timer("Start training...")
-    results_file = "results{}.txt".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+    # results_file = "results{}.txt".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+    results_file = "trainlog-model-{}-coe-{}-time-{}.txt" \
+        .format(args.back_bone,
+                args.level_set_coe,
+                datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
+                )
     for epoch in range(args.start_epoch, args.epochs):
         # 因为如果是继续训练，则从start_epoch开始训练，最终到epochs结束
         # 训练一个epoch
@@ -60,7 +65,14 @@ def train_eval_model(args, Data: MakeData, Net: MakeNet):
             save_file["scaler"] = Net.scaler.state_dict()
 
         if args.save_best is True:
-            torch.save(save_file, "save_weights/best_model.pth")
+            file_name = "model-model-{}-coe-{}-time{}-best_dice-{}" \
+                .format(args.back_bone,
+                        args.level_set_coe,
+                        datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
+                        best_dice,
+                        )
+            # torch.save(save_file, "save_weights/best_model.pth")
+            torch.save(save_file, os.path.join(".save_weights", file_name))
         else:
             torch.save(save_file, "save_weights/model_{}.pth".format(epoch))
 
