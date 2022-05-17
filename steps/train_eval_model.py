@@ -20,6 +20,8 @@ def train_eval_model(args, Data: MakeData, Net: MakeNet):
                 args.level_set_coe,
                 datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
                 )
+
+    last_pth = ""
     for epoch in range(args.start_epoch, args.epochs):
         # 因为如果是继续训练，则从start_epoch开始训练，最终到epochs结束
         # 训练一个epoch
@@ -64,20 +66,24 @@ def train_eval_model(args, Data: MakeData, Net: MakeNet):
         if args.amp:
             save_file["scaler"] = Net.scaler.state_dict()
 
-        last_pth = ""
         if args.save_best is True:
             # torch.save(save_file, "save_weights/best_model.pth")
-            cur_pth = "save_weights/model-{}-coe-{}-time{}-best_dice-{}.pth" \
+            cur_pth = "model-{}-coe-{}-time-{}-best_dice-{}.pth" \
                 .format(args.back_bone,
                         args.level_set_coe,
                         datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
                         best_dice,
                         )
-            torch.save(save_file, "save_weights/" + cur_pth)
 
             if last_pth != "":
                 os.remove("save_weights/" + last_pth)
+                # print("remove a pth")
                 last_pth = cur_pth
+            else:
+                last_pth = cur_pth
+
+            torch.save(save_file, "save_weights/" + cur_pth)
+            # print("write a pth")
 
         else:
             torch.save(save_file, "save_weights/model_{}.pth".format(epoch))
