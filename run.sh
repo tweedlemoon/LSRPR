@@ -59,3 +59,5 @@ python trainLSF.py \
 --level-set-coe 0.000001 \
 --loss-weight 1.0 2.0 \
 --back-bone r2attunet
+
+python .utils/emailSender.py
