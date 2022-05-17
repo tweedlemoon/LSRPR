@@ -111,3 +111,4 @@ class EmailSender:
 
 if __name__ == '__main__':
     email_sender = EmailSender(proName="runLSF", message="completed")
+    email_sender.sendResultEmail()
