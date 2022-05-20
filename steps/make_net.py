@@ -63,6 +63,7 @@ class MakeNet:
 
     def make_unet(self, args):
         self.model = create_unet_model(num_classes=args.num_classes)
+        # self.model = U_Net(output_ch=args.num_classes)
         self.model.to(args.device)
         print(self.model)
 

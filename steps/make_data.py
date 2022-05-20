@@ -1,3 +1,4 @@
+import argparse
 import os
 import time
 
@@ -7,6 +8,7 @@ import torch.utils.data as data
 from PIL import Image
 
 from src.get_transforms import *
+from utils.handy_functions import *
 from utils.timer import Timer
 
 
@@ -181,6 +183,55 @@ class DriveDataset(data.Dataset):
         return batched_imgs, batched_targets
 
 
+class Chase_db1(data.Dataset):
+    def __init__(self, root: str, transforms=None):
+        super(Chase_db1, self).__init__()
+        data_root = os.path.join(root, "CHASE_DB1")
+        assert os.path.exists(data_root), f"path '{data_root}' does not exists."
+        self.transforms = transforms
+        img_names = [i for i in os.listdir(os.path.join(data_root, )) if i.endswith(".jpg")]
+        self.img_list = [os.path.join(data_root, i) for i in img_names]
+        self.manual = [os.path.join(data_root, os.path.splitext(i)[0]) + "_1stHO.png"
+                       for i in img_names]
+        # check files
+        for i in self.manual:
+            if os.path.exists(i) is False:
+                raise FileNotFoundError(f"file {i} does not exists.")
+
+    def __getitem__(self, idx):
+        img = Image.open(self.img_list[idx]).convert('RGB')
+        mask = Image.open(self.manual[idx]).convert('L')
+        # /255即是manual中黑色为0，血管处白色为1
+        mask = np.array(mask) / 255
+
+        # 这里转回PIL的原因是，transforms中是对PIL数据进行处理
+        mask = Image.fromarray(mask)
+
+        if self.transforms is not None:
+            img, mask = self.transforms(img, mask)
+
+        return img, mask
+
+    def __len__(self):
+        return len(self.img_list)
+
+    @staticmethod
+    def cat_list(images, fill_value=0):
+        max_size = tuple(max(s) for s in zip(*[img.shape for img in images]))
+        batch_shape = (len(images),) + max_size
+        batched_imgs = images[0].new(*batch_shape).fill_(fill_value)
+        for img, pad_img in zip(images, batched_imgs):
+            pad_img[..., :img.shape[-2], :img.shape[-1]].copy_(img)
+        return batched_imgs
+
+    @staticmethod
+    def collate_fn(batch):
+        images, targets = list(zip(*batch))
+        batched_imgs = Chase_db1.cat_list(images, fill_value=0)
+        batched_targets = Chase_db1.cat_list(targets, fill_value=255)
+        return batched_imgs, batched_targets
+
+
 class MakeData:
     def __init__(self, args):
         self.train_dataset = None
@@ -226,7 +277,7 @@ class MakeData:
                                                       collate_fn=self.val_dataset.collate_fn)
 
         print("Making data finished at: " + str(time.ctime(timer.get_current_time())))
-        print("Time using: " + str(timer.get_stage_elapsed()))
+        print("Time used: " + str(timer.get_stage_elapsed()))
         print('Done.')
 
     def make_DRIVE(self, args):
@@ -253,5 +304,26 @@ class MakeData:
                                                       pin_memory=True,
                                                       collate_fn=self.val_dataset.collate_fn)
         print("Making data finished at: " + str(time.ctime(timer.get_current_time())))
-        print("Time using: " + str(timer.get_stage_elapsed()))
+        print("Time used: " + str(timer.get_stage_elapsed()))
         print('Done.')
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="inference your model.")
+    # batchsize是做数据的时候判断使用多少CPU核心时用的，其实在做验证集时并不需要
+    parser.add_argument("-b", "--batch-size", default=1, type=int)
+    parser.add_argument("--data-path", default='E:/Datasets', help="data root")
+    parser.add_argument("--num-classes", default=2, type=int)
+    parser.add_argument("--dataset", default='DRIVE', type=str)
+
+    return parser.parse_args()
+
+
+if __name__ == '__main__':
+    args = parse_arguments()
+    train_loader = MakeData(args=args).train_loader
+    for img, mask in train_loader:
+        val_range('img', img)
+        val_range('mask', mask)
+        img_show(format_convert(mask))
+    pass

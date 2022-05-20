@@ -125,10 +125,7 @@ def level_set_loss_compute(net_output: dict):
 
 
 if __name__ == '__main__':
-    if torch.cuda.is_available():
-        device = torch.device(device='cuda')
-    else:
-        device = torch.device(device='cpu')
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     # # 仿制输入
     # dummy_net_output = torch.autograd.Variable(torch.sigmoid(torch.randn(2, 2, 8, 16)), requires_grad=True).to(device)

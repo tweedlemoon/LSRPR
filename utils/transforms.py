@@ -8,6 +8,7 @@ import torch
 from PIL import Image
 from torchvision import transforms as T
 from torchvision.transforms import functional as F
+from utils.handy_functions import double_img_show, format_convert
 
 sys.path.append("..")
 
@@ -124,7 +125,7 @@ class RandomCrop(object):
         """
         # 如果图像最小边长小于给定size，则用数值fill进行padding
         image = pad_if_smaller(image, self.size)
-        # 我感觉他写错了，应该填0黑色才对，他在处理的时候进行了一个颜色反转，所以还是255
+        # 我感觉他写错了，应该填0黑色才对，但他在处理的时候进行了一个颜色反转，所以还是255
         target = pad_if_smaller(target, self.size, fill=255)
         # target = pad_if_smaller(target, self.size, fill=0)
         crop_params = T.RandomCrop.get_params(image, (self.size, self.size))
@@ -167,25 +168,26 @@ class Normalize(object):
 if __name__ == "__main__":
     # 调试代码使用
     # 图片路径
-    pic_path = "../test_picture"
+    # pic_path = "../test_picture"
+    pic_path = "E:\\Datasets\\CHASE_DB1"
     # 图片候选，用哪个去掉注释即可
-    input_pic_name = "ILSVRC2012_test_00000038.jpg"
+    input_pic_name = "Image_01L.jpg"
     # pic_name = "01_test.tif"
     # pic_name = "ILSVRC2012_test_00000038.png"
     input_pic_path = os.path.join(pic_path, input_pic_name)
-    target_pic_name = "ILSVRC2012_test_00000038.png"
+    target_pic_name = "Image_01L_1stHO.png"
     target_pic_path = os.path.join(pic_path, target_pic_name)
 
-    # 使用CV2测试一下输出
-    # flags 1是rgb图 0是灰度图 -1是原图
-    input_pic_cv2 = cv2.imread(input_pic_path, flags=1)
-    cv2.imshow('flag=1 rgb pic', input_pic_cv2)
-    input_pic_cv2 = cv2.imread(input_pic_path, flags=0)
-    cv2.imshow('flag=0 gray pic', input_pic_cv2)
-    input_pic_cv2 = cv2.imread(input_pic_path, flags=-1)
-    cv2.imshow('flag=-1 origin pic', input_pic_cv2)
-    # 等待窗口关闭或任意键输入继续
-    cv2.waitKey(0)
+    # # 使用CV2测试一下输出
+    # # flags 1是rgb图 0是灰度图 -1是原图
+    # input_pic_cv2 = cv2.imread(input_pic_path, flags=1)
+    # cv2.imshow('flag=1 rgb pic', input_pic_cv2)
+    # input_pic_cv2 = cv2.imread(input_pic_path, flags=0)
+    # cv2.imshow('flag=0 gray pic', input_pic_cv2)
+    # input_pic_cv2 = cv2.imread(input_pic_path, flags=-1)
+    # cv2.imshow('flag=-1 origin pic', input_pic_cv2)
+    # # 等待窗口关闭或任意键输入继续
+    # cv2.waitKey(0)
 
     # 先放原图
     input_pic = cv2.imread(input_pic_path)
@@ -208,7 +210,7 @@ if __name__ == "__main__":
     if judge == 1:
         # 测试RandomResize，注意此处F.resize必须要PIL类的图片
         # 开始随机resize
-        base_size = 400
+        base_size = 960
         print("Before random,\ninput picture size:", input_pic.size, "\ntarget picture size:", target_pic.size)
         input_pic, target_pic = RandomResize(int(0.5 * base_size), int(1.2 * base_size))(input_pic, target_pic)
         print("After random,\ninput picture size:", input_pic.size, "\ntarget picture size:", target_pic.size)
@@ -218,13 +220,13 @@ if __name__ == "__main__":
         input_pic, target_pic = RandomHorizontalFlip(1)(input_pic, target_pic)
     elif judge == 3:
         # 测试RandomCrop
-        base_size = 400
+        base_size = 1200
         print("Do random crop...")
         input_pic, target_pic = RandomCrop(base_size)(input_pic, target_pic)
         print("After random,\ninput picture size:", input_pic.size, "\ntarget picture size:", target_pic.size)
     elif judge == 4:
         # 测试CenterCrop
-        base_size = 400
+        base_size = 1200
         print("Do center crop...")
         input_pic, target_pic = CenterCrop(base_size)(input_pic, target_pic)
         print("After center,\ninput picture size:", input_pic.size, "\ntarget picture size:", target_pic.size)
@@ -251,8 +253,9 @@ if __name__ == "__main__":
     if judge != 5 and platform.system() == "Windows":
         # 输出图片效果，注意5是不行的
         # 将PIL的视频转化为numpy，才能使用CV2输出，而且注意，cv2存储的图片需要先cvtColor一下才能正常输出，因为cv2输出时是BGR输出
-        input_pic = cv2.cvtColor(np.array(input_pic), cv2.COLOR_BGR2RGB)
-        target_pic = cv2.cvtColor(np.array(target_pic), cv2.COLOR_BGR2RGB)
-        cv2.imshow('after process input pic', input_pic)
-        cv2.imshow('after process target pic', target_pic)
-        cv2.waitKey(0)
+        # input_pic = cv2.cvtColor(np.array(input_pic), cv2.COLOR_BGR2RGB)
+        # target_pic = cv2.cvtColor(np.array(target_pic), cv2.COLOR_BGR2RGB)
+        # cv2.imshow('after process input pic', input_pic)
+        # cv2.imshow('after process target pic', target_pic)
+        # cv2.waitKey(0)
+        double_img_show(format_convert(input_pic), format_convert(target_pic))

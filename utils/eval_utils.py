@@ -54,22 +54,47 @@ class ConfusionMatrix(object):
     def __init__(self, num_classes):
         self.num_classes = num_classes
         self.mat = None
+        self.accuracy = None
+        self.precision = None
+        self.recall = None
+        self.f1_score = None
 
-    def update(self, a, b):
+    def update(self, truth, prediction):
         n = self.num_classes
         if self.mat is None:
             # 创建混淆矩阵
-            self.mat = torch.zeros((n, n), dtype=torch.int64, device=a.device)
+            self.mat = torch.zeros((n, n), dtype=torch.int64, device=truth.device)
         with torch.no_grad():
             # 寻找GT中为目标的像素索引
-            k = (a >= 0) & (a < n)
-            # 统计像素真实类别a[k]被预测成类别b[k]的个数(这里的做法很巧妙)
-            inds = n * a[k].to(torch.int64) + b[k]
+            k = (truth >= 0) & (truth < n)
+            # 这是一个映射，假如n=3，那么会有预测值和实际值均为{0,1,2}，会有实际0预测012，实际1预测012等9种情况
+            # 该算法则是一个函数f，将0-0这个行为map到0上，0-1map到1上，0-2map到2，1-0map到3...以此类推直到2-2map到8
+            # 最后统计0-8行为总共出现了几次，这9个数就是混淆矩阵想要的9个数
+            inds = n * truth[k].to(torch.int64) + prediction[k]
             self.mat += torch.bincount(inds, minlength=n ** 2).reshape(n, n)
 
     def reset(self):
         if self.mat is not None:
             self.mat.zero_()
+        if self.accuracy is not None:
+            self.accuracy.zero_()
+        if self.precision is not None:
+            self.precision.zero_()
+        if self.recall is not None:
+            self.recall.zero_()
+        if self.f1_score is not None:
+            self.f1_score.zero_()
+
+    def prf_compute(self):
+        h = self.mat.float()
+        # 正确率为总预测对的（对角线）除以总像素点数量
+        self.accuracy = torch.diag(h).sum() / h.sum()
+        # 查准率为主对角线上的值除以该值所在列的和
+        self.precision = (torch.diag(h) / h.sum(0)).sum() / self.num_classes
+        # 召回率等于主对角线上的值除以该值所在行的和
+        self.recall = (torch.diag(h) / h.sum(1)).sum() / self.num_classes
+        # f1score按公式来
+        self.f1_score = (2 * self.precision * self.recall) / (self.precision + self.recall)
 
     def compute(self):
         h = self.mat.float()
@@ -79,6 +104,7 @@ class ConfusionMatrix(object):
         acc = torch.diag(h) / h.sum(1)
         # 计算每个类别预测与真实目标的iou
         iu = torch.diag(h) / (h.sum(1) + h.sum(0) - torch.diag(h))
+
         return acc_global, acc, iu
 
     def reduce_from_all_processes(self):
@@ -92,13 +118,13 @@ class ConfusionMatrix(object):
     def __str__(self):
         acc_global, acc, iu = self.compute()
         return (
-            'global correct: {:.1f}\n'
+            'global correct: {:.2f}\n'
             'average row correct: {}\n'
             'IoU: {}\n'
-            'mean IoU: {:.1f}').format(
+            'mean IoU: {:.2f}').format(
             acc_global.item() * 100,
-            ['{:.1f}'.format(i) for i in (acc * 100).tolist()],
-            ['{:.1f}'.format(i) for i in (iu * 100).tolist()],
+            ['{:.2f}'.format(i) for i in (acc * 100).tolist()],
+            ['{:.2f}'.format(i) for i in (iu * 100).tolist()],
             iu.mean().item() * 100)
 
 
@@ -142,3 +168,22 @@ class DiceCoefficient(object):
         torch.distributed.barrier()
         torch.distributed.all_reduce(self.cumulative_dice)
         torch.distributed.all_reduce(self.count)
+
+
+if __name__ == '__main__':
+    # test confusion matrix
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    dummy_predict = torch.tensor([
+        [0, 1, 1],
+        [2, 2, 1],
+        [1, 0, 1],
+    ]).to(device)
+    dummy_gt = torch.tensor([
+        [0, 2, 2],
+        [0, 2, 1],
+        [1, 0, 0],
+    ]).to(device)
+    matrix = ConfusionMatrix(num_classes=3)
+    matrix.update(dummy_gt, dummy_predict)
+    acc_global, acc, iu = matrix.compute()
+    matrix.prf_compute()

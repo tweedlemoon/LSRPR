@@ -1,7 +1,9 @@
 import re
 
 # Filename = '../experimental_data/1e-6levelset/1/results20220420-194802.txt'
-Filename = '../experimental_data/1e-6levelset/2/results20220502-114425.txt'
+# Filename = '../experimental_data/unet/1e-6levelset/results20220502-114425.txt'
+# Filename = '../experimental_data/5e-6levelset/results20220503-101549.txt'
+Filename = '../experimental_data/r2unet/train-result-model-r2unet-coe-0-time-20220517-095604.txt'
 
 
 class ResultDescription(object):
