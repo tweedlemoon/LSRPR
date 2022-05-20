@@ -183,9 +183,9 @@ class DriveDataset(data.Dataset):
         return batched_imgs, batched_targets
 
 
-class Chase_db1(data.Dataset):
+class Chase_db1Dataset(data.Dataset):
     def __init__(self, root: str, transforms=None):
-        super(Chase_db1, self).__init__()
+        super(Chase_db1Dataset, self).__init__()
         data_root = os.path.join(root, "CHASE_DB1")
         assert os.path.exists(data_root), f"path '{data_root}' does not exists."
         self.transforms = transforms
@@ -227,8 +227,8 @@ class Chase_db1(data.Dataset):
     @staticmethod
     def collate_fn(batch):
         images, targets = list(zip(*batch))
-        batched_imgs = Chase_db1.cat_list(images, fill_value=0)
-        batched_targets = Chase_db1.cat_list(targets, fill_value=255)
+        batched_imgs = Chase_db1Dataset.cat_list(images, fill_value=0)
+        batched_targets = Chase_db1Dataset.cat_list(targets, fill_value=255)
         return batched_imgs, batched_targets
 
 
@@ -243,6 +243,8 @@ class MakeData:
             self.make_voc2012(args=args)
         elif args.dataset == "DRIVE":
             self.make_DRIVE(args=args)
+        elif args.dataset == 'Chase_db1':
+            self.make_Chase_db1(args=args)
 
     def make_voc2012(self, args):
         print("Start making voc2012 data...")
@@ -290,6 +292,31 @@ class MakeData:
         self.val_dataset = DriveDataset(args.data_path,
                                         train=False,
                                         transforms=drive_get_transform(train=False))
+        num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
+        self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
+                                                        batch_size=args.batch_size,
+                                                        num_workers=num_workers,
+                                                        shuffle=True,
+                                                        pin_memory=True,
+                                                        collate_fn=self.train_dataset.collate_fn)
+
+        self.val_loader = torch.utils.data.DataLoader(self.val_dataset,
+                                                      batch_size=1,
+                                                      num_workers=num_workers,
+                                                      pin_memory=True,
+                                                      collate_fn=self.val_dataset.collate_fn)
+        print("Making data finished at: " + str(time.ctime(timer.get_current_time())))
+        print("Time used: " + str(timer.get_stage_elapsed()))
+        print('Done.')
+
+    def make_Chase_db1(self, args):
+        print("Start making Chase_db1 data...")
+        timer = Timer('Stage: Make Data ')
+        self.train_dataset = Chase_db1Dataset(args.data_path,
+                                              transforms=chase_db_get_transform(train=True))
+
+        self.val_dataset = Chase_db1Dataset(args.data_path,
+                                            transforms=chase_db_get_transform(train=False))
         num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
         self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
                                                         batch_size=args.batch_size,

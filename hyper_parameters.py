@@ -27,7 +27,7 @@ In this part , all the hyper parameters are listed here.
 # which gpu to use, 0 default. Multi-gpu is not supported in this project.
 Which_GPU = "0"
 # which dataset to use
-Data_Name = "DRIVE"
+Data_Name = "Chase_db1"
 # which backbone to use
 Back_Bone = "unet"
 # FCN use Aux.
@@ -92,6 +92,16 @@ elif Data_Name == "DRIVE":
     else:
         # Data_Path = "/Data20T/data20t/data20t/Liuyifei/Datasets"
         Data_Path = "/root/autodl-tmp"
+    Data_Root = Data_Path
+    Class_Num = 1
+elif Data_Name == 'Chase_db1':
+    # part:DRIVE Dataset
+    if platform.system() == "Windows":
+        Data_Path = "E:/Datasets/"
+    else:
+        # Data_Path = "/Data20T/data20t/data20t/Liuyifei/Datasets"
+        Data_Path = "/root/autodl-tmp"
+
     Data_Root = Data_Path
     Class_Num = 1
 
