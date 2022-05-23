@@ -27,7 +27,7 @@ In this part , all the hyper parameters are listed here.
 # which gpu to use, 0 default. Multi-gpu is not supported in this project.
 Which_GPU = "0"
 # which dataset to use
-Data_Name = "Chase_db1"
+Data_Name = "DRIVE"
 # which backbone to use
 Back_Bone = "unet"
 # FCN use Aux.

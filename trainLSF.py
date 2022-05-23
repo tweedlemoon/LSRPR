@@ -59,8 +59,9 @@ if __name__ == '__main__':
     args = parse_args()
     # +1这个1是背景background
     args.num_classes += 1
-    # use which GPU and initial
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.which_gpu
+    if args.device == 'cuda':
+        # use which GPU and initial
+        os.environ["CUDA_VISIBLE_DEVICES"] = args.which_gpu
     print(args)
     timer = Timer("Work begin.")
 
