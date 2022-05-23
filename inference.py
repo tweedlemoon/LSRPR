@@ -22,7 +22,11 @@ from steps.make_data import MakeData
 # roi_mask_path = Data_Path + "DRIVE/test/mask/02_test_mask.gif"
 # ground_truth_path = Data_Path + "DRIVE/test/1st_manual/02_manual1.gif"
 
-Model_path = 'experimental_data/unet/1e-6levelset/model-unet-coe-1e-6-best_dice-0.82.pth'
+Model_path = 'experimental_data/attunet/1e-6levelset/1/model-attunet-coe-1e-06-time-20220523-165350-best_dice-0.8230832815170288.pth'
+Model = 'attunet'
+Data_Name = 'DRIVE'
+
+
 # Model_path = 'save_weights/best_model_author.pth'
 
 
@@ -37,7 +41,7 @@ def parse_arguments():
     # parser.add_argument('--model_path', default="save_weights/best_model_author.pth", help="the best trained model root")
     # parser.add_argument('--model_path', default="save_weights/best_model.pth", help="the best trained model root")
     parser.add_argument('--model_path', default=Model_path, help="the best trained model root")
-    parser.add_argument("--back-bone", default='unet', type=str,
+    parser.add_argument("--back-bone", default=Model, type=str,
                         choices=["fcn", "unet", "r2unet", "attunet", "r2attunet"])
     parser.add_argument("--num-classes", default=Class_Num, type=int)
     parser.add_argument("--dataset", default=Data_Name, type=str, choices=["voc2012", "DRIVE"],
@@ -77,8 +81,6 @@ def compute_index(args):
     with torch.no_grad():
         for idx, (img, real_result) in enumerate(val_loader, start=0):
             ground_truth = val_loader.dataset.manual[idx]
-
-            roi_mask = val_loader.dataset.roi_mask[idx]
             ground_truth = transforms.ToTensor()(PIL.Image.open(ground_truth).convert('1')).to(torch.int64)
             ground_truth = ground_truth.to(device)
 
@@ -186,5 +188,7 @@ def run_inference(args):
 
 if __name__ == '__main__':
     args = parse_arguments()
-    # compute_index(args=args)
+    # 当显存不够时使用
+    # args.device = 'cpu'
+    compute_index(args=args)
     run_inference(args=args)
