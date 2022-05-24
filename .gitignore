@@ -148,3 +148,4 @@ save_weights/*
 test_picture/*
 experimental_data/*
 __pychache__/*
+predict_pic/*

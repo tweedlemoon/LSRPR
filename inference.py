@@ -22,7 +22,7 @@ from steps.make_data import MakeData
 # roi_mask_path = Data_Path + "DRIVE/test/mask/02_test_mask.gif"
 # ground_truth_path = Data_Path + "DRIVE/test/1st_manual/02_manual1.gif"
 
-Model_path = 'experimental_data/attunet/1e-6levelset/1/model-attunet-coe-1e-06-time-20220523-165350-best_dice-0.8230832815170288.pth'
+Model_path = 'experimental_data/DRIVE/attunet/1e-6levelset/1/model-attunet-coe-1e-06-time-20220523-165350-best_dice-0.8230832815170288.pth'
 Model = 'attunet'
 Data_Name = 'DRIVE'
 
@@ -150,6 +150,10 @@ def run_inference(args):
                             original_mask=format_convert(ground_truth),
                             predicted_img=format_convert(np_argmax_output))
 
+            predicted_img = format_convert(np_argmax_output)
+            save_img_name = 'predict_pic/' + str(idx + 1) + '_' + Model + '_prediciton' + '.png'
+            predicted_img.save(save_img_name)
+
     # # 单张图片测试
     # # load picture
     # img_input = PIL.Image.open(img_path).convert('RGB')
@@ -189,6 +193,10 @@ def run_inference(args):
 if __name__ == '__main__':
     args = parse_arguments()
     # 当显存不够时使用
-    # args.device = 'cpu'
-    compute_index(args=args)
+    args.device = 'cpu'
+    # 预测图存储位置
+    if not os.path.exists('predict_pic/'):
+        os.mkdir('predict_pic/')
+
+    # compute_index(args=args)
     run_inference(args=args)

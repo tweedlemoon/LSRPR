@@ -2,7 +2,7 @@ cd /liuyifei/LSFforSeg
 
 python trainLSF.py \
   --data-path "/root/autodl-tmp/liuyifei" \
-  --Data_Name DRIVE \
+  --dataset DRIVE \
   -b 2 \
   --epochs 300 \
   --level-set-coe 0.000001 \
@@ -11,7 +11,7 @@ python trainLSF.py \
 
 python trainLSF.py \
   --data-path "/root/autodl-tmp/liuyifei" \
-  --Data_Name Chase_db1 \
+  --dataset Chase_db1 \
   -b 2 \
   --epochs 300 \
   --level-set-coe 0.000001 \
