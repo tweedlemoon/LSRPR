@@ -58,6 +58,7 @@ class ConfusionMatrix(object):
         self.precision = None
         self.recall = None
         self.f1_score = None
+        self.miou = None
 
     def update(self, truth, prediction):
         n = self.num_classes
@@ -84,6 +85,8 @@ class ConfusionMatrix(object):
             self.recall.zero_()
         if self.f1_score is not None:
             self.f1_score.zero_()
+        if self.miou is not None:
+            self.miou.zero_()
 
     def prf_compute(self):
         h = self.mat.float()
@@ -95,6 +98,8 @@ class ConfusionMatrix(object):
         self.recall = (torch.diag(h) / h.sum(1)).sum() / self.num_classes
         # f1score按公式来
         self.f1_score = (2 * self.precision * self.recall) / (self.precision + self.recall)
+        # miou也按照公式来
+        self.miou = (torch.diag(h) / (h.sum(1) + h.sum(0) - torch.diag(h))).sum() / self.num_classes
 
     def compute(self):
         h = self.mat.float()

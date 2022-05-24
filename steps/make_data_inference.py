@@ -130,7 +130,7 @@ class DriveDataset(data.Dataset):
         self.transforms = transforms
         img_names = [i for i in os.listdir(os.path.join(data_root, "images")) if i.endswith(".tif")]
         self.img_list = [os.path.join(data_root, "images", i) for i in img_names]
-        self.manual = [os.path.join(data_root, "1st_manual", i.split("_")[0] + "_manual1.gif")
+        self.manual = [os.path.join(data_root, "2nd_manual", i.split("_")[0] + "_manual2.gif")
                        for i in img_names]
         # check files
         for i in self.manual:
@@ -191,7 +191,7 @@ class Chase_db1Dataset(data.Dataset):
         self.transforms = transforms
         img_names = [i for i in os.listdir(os.path.join(data_root, )) if i.endswith(".jpg")]
         self.img_list = [os.path.join(data_root, i) for i in img_names]
-        self.manual = [os.path.join(data_root, os.path.splitext(i)[0]) + "_1stHO.png"
+        self.manual = [os.path.join(data_root, os.path.splitext(i)[0]) + "_2ndHO.png"
                        for i in img_names]
         # check files
         for i in self.manual:
