@@ -184,15 +184,20 @@ class DriveDataset(data.Dataset):
 
 
 class Chase_db1Dataset(data.Dataset):
-    def __init__(self, root: str, transforms=None):
+    def __init__(self, root: str, transforms=None, manual_type=1):
         super(Chase_db1Dataset, self).__init__()
         data_root = os.path.join(root, "CHASE_DB1")
         assert os.path.exists(data_root), f"path '{data_root}' does not exists."
         self.transforms = transforms
         img_names = [i for i in os.listdir(os.path.join(data_root, )) if i.endswith(".jpg")]
         self.img_list = [os.path.join(data_root, i) for i in img_names]
-        self.manual = [os.path.join(data_root, os.path.splitext(i)[0]) + "_1stHO.png"
-                       for i in img_names]
+        if manual_type == 1:
+            self.manual = [os.path.join(data_root, os.path.splitext(i)[0]) + "_1stHO.png"
+                           for i in img_names]
+        else:
+            self.manual = [os.path.join(data_root, os.path.splitext(i)[0]) + "_2ndHO.png"
+                           for i in img_names]
+
         # check files
         for i in self.manual:
             if os.path.exists(i) is False:

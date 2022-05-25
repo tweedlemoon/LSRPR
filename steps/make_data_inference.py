@@ -122,7 +122,7 @@ class VOCSegmentation(data.Dataset):
 
 
 class DriveDataset(data.Dataset):
-    def __init__(self, root: str, train: bool, transforms=None):
+    def __init__(self, root: str, train: bool, transforms=None, manual_type=1):
         super(DriveDataset, self).__init__()
         self.flag = "training" if train else "test"
         data_root = os.path.join(root, "DRIVE", self.flag)
@@ -130,8 +130,18 @@ class DriveDataset(data.Dataset):
         self.transforms = transforms
         img_names = [i for i in os.listdir(os.path.join(data_root, "images")) if i.endswith(".tif")]
         self.img_list = [os.path.join(data_root, "images", i) for i in img_names]
-        self.manual = [os.path.join(data_root, "2nd_manual", i.split("_")[0] + "_manual2.gif")
-                       for i in img_names]
+
+        if self.flag == 'training':
+            self.manual = [os.path.join(data_root, "1st_manual", i.split("_")[0] + "_manual1.gif")
+                           for i in img_names]
+        elif self.flag == 'test':
+            if manual_type == 1:
+                self.manual = [os.path.join(data_root, "1st_manual", i.split("_")[0] + "_manual1.gif")
+                               for i in img_names]
+            elif manual_type == 2:
+                self.manual = [os.path.join(data_root, "2nd_manual", i.split("_")[0] + "_manual2.gif")
+                               for i in img_names]
+
         # check files
         for i in self.manual:
             if os.path.exists(i) is False:
@@ -184,15 +194,20 @@ class DriveDataset(data.Dataset):
 
 
 class Chase_db1Dataset(data.Dataset):
-    def __init__(self, root: str, transforms=None):
+    def __init__(self, root: str, transforms=None, manual_type=1):
         super(Chase_db1Dataset, self).__init__()
         data_root = os.path.join(root, "CHASE_DB1")
         assert os.path.exists(data_root), f"path '{data_root}' does not exists."
         self.transforms = transforms
         img_names = [i for i in os.listdir(os.path.join(data_root, )) if i.endswith(".jpg")]
         self.img_list = [os.path.join(data_root, i) for i in img_names]
-        self.manual = [os.path.join(data_root, os.path.splitext(i)[0]) + "_2ndHO.png"
-                       for i in img_names]
+        if manual_type == 1:
+            self.manual = [os.path.join(data_root, os.path.splitext(i)[0]) + "_1stHO.png"
+                           for i in img_names]
+        elif manual_type == 2:
+            self.manual = [os.path.join(data_root, os.path.splitext(i)[0]) + "_2ndHO.png"
+                           for i in img_names]
+
         # check files
         for i in self.manual:
             if os.path.exists(i) is False:
@@ -234,10 +249,10 @@ class Chase_db1Dataset(data.Dataset):
 
 class MakeData:
     def __init__(self, args):
-        self.train_dataset = None
-        self.val_dataset = None
-        self.train_loader = None
-        self.val_loader = None
+        self.dataset_manual_1 = None
+        self.dataset_manual_2 = None
+        self.loader_manual_1 = None
+        self.loader_manual_2 = None
 
         if args.dataset == "voc2012":
             self.make_voc2012(args=args)
@@ -252,32 +267,32 @@ class MakeData:
         timer = Timer('Stage: Make Data ')
         # VOCdevkit -> VOC2012 -> ImageSets -> Segmentation -> train.txt
         # 此处指定了transform，使用函数get_transform指定，对train和val使用不同的transform
-        self.train_dataset = VOCSegmentation(args.data_path,
-                                             year="2012",
-                                             transforms=voc_get_transform(train=True),
-                                             txt_name="train.txt")
+        self.dataset_manual_1 = VOCSegmentation(args.data_path,
+                                                year="2012",
+                                                transforms=voc_get_transform(train=True),
+                                                txt_name="train.txt")
 
         # VOCdevkit -> VOC2012 -> ImageSets -> Segmentation -> val.txt
-        self.val_dataset = VOCSegmentation(args.data_path,
-                                           year="2012",
-                                           transforms=voc_get_transform(train=False),
-                                           txt_name="val.txt")
+        self.dataset_manual_2 = VOCSegmentation(args.data_path,
+                                                year="2012",
+                                                transforms=voc_get_transform(train=False),
+                                                txt_name="val.txt")
 
         # 这里把workernum以cpu数量，batchsize和8中的最小值进行选取
         # numworkers主要用于数据导入，数量恰好才是最高效的
         num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
-        self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
-                                                        batch_size=args.batch_size,
-                                                        num_workers=num_workers,
-                                                        shuffle=True,
-                                                        pin_memory=True,
-                                                        collate_fn=self.train_dataset.collate_fn)
+        self.loader_manual_1 = torch.utils.data.DataLoader(self.dataset_manual_1,
+                                                           batch_size=args.batch_size,
+                                                           num_workers=num_workers,
+                                                           shuffle=True,
+                                                           pin_memory=True,
+                                                           collate_fn=self.dataset_manual_1.collate_fn)
 
-        self.val_loader = torch.utils.data.DataLoader(self.val_dataset,
-                                                      batch_size=1,
-                                                      num_workers=num_workers,
-                                                      pin_memory=True,
-                                                      collate_fn=self.val_dataset.collate_fn)
+        self.loader_manual_2 = torch.utils.data.DataLoader(self.dataset_manual_2,
+                                                           batch_size=1,
+                                                           num_workers=num_workers,
+                                                           pin_memory=True,
+                                                           collate_fn=self.dataset_manual_2.collate_fn)
 
         print("Making data finished at: " + str(time.ctime(timer.get_current_time())))
         print("Time used: " + str(timer.get_stage_elapsed()))
@@ -286,26 +301,37 @@ class MakeData:
     def make_DRIVE(self, args):
         print("Start making DRIVE data...")
         timer = Timer('Stage: Make Data ')
-        self.train_dataset = DriveDataset(args.data_path,
-                                          train=True,
-                                          transforms=drive_get_transform(train=True))
+        self.train_dataset_manual_1 = DriveDataset(args.data_path,
+                                                   train=True,
+                                                   transforms=drive_get_transform(train=False))
 
-        self.val_dataset = DriveDataset(args.data_path,
-                                        train=False,
-                                        transforms=drive_get_transform(train=False))
+        self.test_dataset_manual_1 = DriveDataset(args.data_path,
+                                                  train=False,
+                                                  manual_type=1,
+                                                  transforms=drive_get_transform(train=False))
+
+        self.test_dataset_manual_2 = DriveDataset(args.data_path,
+                                                  train=False,
+                                                  manual_type=2,
+                                                  transforms=drive_get_transform(train=False))
         num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
-        self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
-                                                        batch_size=args.batch_size,
-                                                        num_workers=num_workers,
-                                                        shuffle=True,
-                                                        pin_memory=True,
-                                                        collate_fn=self.train_dataset.collate_fn)
+        self.train_loader_manual_1 = torch.utils.data.DataLoader(self.train_dataset_manual_1,
+                                                                 batch_size=1,
+                                                                 num_workers=num_workers,
+                                                                 pin_memory=True,
+                                                                 collate_fn=self.train_dataset_manual_1.collate_fn)
 
-        self.val_loader = torch.utils.data.DataLoader(self.val_dataset,
-                                                      batch_size=1,
-                                                      num_workers=num_workers,
-                                                      pin_memory=True,
-                                                      collate_fn=self.val_dataset.collate_fn)
+        self.test_loader_manual_1 = torch.utils.data.DataLoader(self.test_dataset_manual_1,
+                                                                batch_size=1,
+                                                                num_workers=num_workers,
+                                                                pin_memory=True,
+                                                                collate_fn=self.test_dataset_manual_1.collate_fn)
+
+        self.test_loader_manual_2 = torch.utils.data.DataLoader(self.test_dataset_manual_2,
+                                                                batch_size=1,
+                                                                num_workers=num_workers,
+                                                                pin_memory=True,
+                                                                collate_fn=self.test_dataset_manual_2.collate_fn)
         print("Making data finished at: " + str(time.ctime(timer.get_current_time())))
         print("Time used: " + str(timer.get_stage_elapsed()))
         print('Done.')
@@ -313,24 +339,25 @@ class MakeData:
     def make_Chase_db1(self, args):
         print("Start making Chase_db1 data...")
         timer = Timer('Stage: Make Data ')
-        self.train_dataset = Chase_db1Dataset(args.data_path,
-                                              transforms=chase_db_get_transform(train=True))
+        self.dataset_manual_1 = Chase_db1Dataset(args.data_path,
+                                                 manual_type=1,
+                                                 transforms=chase_db_get_transform(train=True))
 
-        self.val_dataset = Chase_db1Dataset(args.data_path,
-                                            transforms=chase_db_get_transform(train=False))
+        self.dataset_manual_2 = Chase_db1Dataset(args.data_path,
+                                                 manual_type=2,
+                                                 transforms=chase_db_get_transform(train=False))
         num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
-        self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
-                                                        batch_size=args.batch_size,
-                                                        num_workers=num_workers,
-                                                        shuffle=True,
-                                                        pin_memory=True,
-                                                        collate_fn=self.train_dataset.collate_fn)
+        self.loader_manual_1 = torch.utils.data.DataLoader(self.dataset_manual_2,
+                                                           batch_size=1,
+                                                           num_workers=num_workers,
+                                                           pin_memory=True,
+                                                           collate_fn=self.dataset_manual_2.collate_fn)
 
-        self.val_loader = torch.utils.data.DataLoader(self.val_dataset,
-                                                      batch_size=1,
-                                                      num_workers=num_workers,
-                                                      pin_memory=True,
-                                                      collate_fn=self.val_dataset.collate_fn)
+        self.loader_manual_2 = torch.utils.data.DataLoader(self.dataset_manual_2,
+                                                           batch_size=1,
+                                                           num_workers=num_workers,
+                                                           pin_memory=True,
+                                                           collate_fn=self.dataset_manual_2.collate_fn)
         print("Making data finished at: " + str(time.ctime(timer.get_current_time())))
         print("Time used: " + str(timer.get_stage_elapsed()))
         print('Done.')
@@ -349,7 +376,7 @@ def parse_arguments():
 
 if __name__ == '__main__':
     args = parse_arguments()
-    train_loader = MakeData(args=args).train_loader
+    train_loader = MakeData(args=args).loader_manual_1
     for img, mask in train_loader:
         val_range('img', img)
         val_range('mask', mask)

@@ -19,9 +19,10 @@ from utils.timer import Timer
 from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 
-Model_path = 'experimental_data/Chase_db1/model-attunet-coe-0-time-20220523-1-best_dice-0.868973433971405.pth'
-Model = 'attunet'
-Data_Name = 'Chase_db1'
+Model_path = 'experimental_data/DRIVE/model-r2attunet-coe-0-time-20220523-1-best_dice-0.7942858338356018.pth'
+Model = 'r2attunet'
+Data_Name = 'DRIVE'
+Is_Inf_Make = True
 
 
 def parse_arguments():
@@ -62,7 +63,11 @@ def compute_index(args):
     model.load_state_dict(pth['model'])
 
     # 多张图片测试，直接制作dataloader
-    val_loader = originmk(args=args).val_loader
+    if Is_Inf_Make:
+        # loader = infmk(args=args).loader_manual_1
+        loader = infmk(args=args).loader_manual_2
+    else:
+        loader = originmk(args=args).val_loader
 
     all_f1_score = 0.0
     all_accuracy = 0.0
@@ -71,8 +76,8 @@ def compute_index(args):
     timer = Timer('Evaluating...')
     model.eval()
     with torch.no_grad():
-        for idx, (img, real_result) in enumerate(val_loader, start=0):
-            ground_truth = val_loader.dataset.manual[idx]
+        for idx, (img, real_result) in enumerate(loader, start=0):
+            ground_truth = loader.dataset.manual[idx]
             ground_truth = transforms.ToTensor()(PIL.Image.open(ground_truth).convert('1')).to(torch.int64)
             ground_truth = ground_truth.to(device)
 
@@ -88,9 +93,9 @@ def compute_index(args):
             all_miou += matrix.miou
             matrix.reset()
 
-    accuracy = all_accuracy / val_loader.__len__()
-    f1_score = all_f1_score / val_loader.__len__()
-    miou = all_miou / val_loader.__len__()
+    accuracy = all_accuracy / loader.__len__()
+    f1_score = all_f1_score / loader.__len__()
+    miou = all_miou / loader.__len__()
     print("Time used: " + str(timer.get_stage_elapsed()))
 
     print('Report:')
@@ -113,14 +118,19 @@ def run_inference(args):
     model.load_state_dict(pth['model'])
 
     # 多张图片测试，直接制作dataloader
-    val_loader = originmk(args=args).val_loader
+    if Is_Inf_Make:
+        # loader = infmk(args=args).loader_manual_1
+        loader = infmk(args=args).loader_manual_2
+    else:
+        loader = originmk(args=args).val_loader
+
     model.eval()
     if Data_Name == 'DRIVE':
         with torch.no_grad():
-            for idx, (img, real_result) in enumerate(val_loader, start=0):
-                original_img = val_loader.dataset.img_list[idx]
-                ground_truth = val_loader.dataset.manual[idx]
-                roi_mask = val_loader.dataset.roi_mask[idx]
+            for idx, (img, real_result) in enumerate(loader, start=0):
+                original_img = loader.dataset.img_list[idx]
+                ground_truth = loader.dataset.manual[idx]
+                roi_mask = loader.dataset.roi_mask[idx]
                 original_img = PIL.Image.open(original_img)
                 ground_truth = PIL.Image.open(ground_truth)
                 # double_img_show(format_convert(original_img), format_convert(ground_truth))
@@ -147,13 +157,15 @@ def run_inference(args):
                 #                 predicted_img=format_convert(np_argmax_output))
 
                 predicted_img = format_convert(np_argmax_output)
-                save_img_name = 'predict_pic/' + str(idx + 1) + '_' + Model + '_prediciton' + '.png'
+                this_img = os.path.basename(loader.dataset.img_list[idx])
+                this_img = this_img.split('.')[0]
+                save_img_name = 'predict_pic/' + this_img + '_' + Model + '_prediciton' + '.png'
                 predicted_img.save(save_img_name)
     elif Data_Name == 'Chase_db1':
         with torch.no_grad():
-            for idx, (img, real_result) in enumerate(val_loader, start=0):
-                original_img = val_loader.dataset.img_list[idx]
-                ground_truth = val_loader.dataset.manual[idx]
+            for idx, (img, real_result) in enumerate(loader, start=0):
+                original_img = loader.dataset.img_list[idx]
+                ground_truth = loader.dataset.manual[idx]
                 original_img = PIL.Image.open(original_img)
                 ground_truth = PIL.Image.open(ground_truth)
                 # double_img_show(format_convert(original_img), format_convert(ground_truth))
@@ -175,7 +187,9 @@ def run_inference(args):
                 #                 predicted_img=format_convert(np_argmax_output))
 
                 predicted_img = format_convert(np_argmax_output)
-                save_img_name = 'predict_pic/' + str(idx + 1) + '_' + Model + '_prediciton' + '.png'
+                this_img = os.path.basename(loader.dataset.img_list[idx])
+                this_img = this_img.split('.')[0]
+                save_img_name = 'predict_pic/' + this_img + '_' + Model + '_prediciton' + '.png'
                 predicted_img.save(save_img_name)
 
 
@@ -188,4 +202,4 @@ if __name__ == '__main__':
         os.mkdir('predict_pic/')
 
     compute_index(args=args)
-    run_inference(args=args)
+    # run_inference(args=args)

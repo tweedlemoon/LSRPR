@@ -1,3 +1,5 @@
+import os
+
 import PIL.Image
 import cv2
 import matplotlib.pyplot as plt
@@ -159,6 +161,18 @@ def init_weights(net, init_type='normal', gain=0.02):
 
     print('initialize network with %s' % init_type)
     net.apply(init_func)
+
+
+def dfs_showdir(path, depth):
+    if depth == 0:
+        print("root:[" + path + "]")
+
+    for item in os.listdir(path):
+        if '.git' not in item:
+            print("|      " * depth + "+--" + item)
+            newitem = path + '/' + item
+            if os.path.isdir(newitem):
+                dfs_showdir(newitem, depth + 1)
 
 
 if __name__ == '__main__':

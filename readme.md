@@ -38,19 +38,31 @@ This project requires a very minimal setting.
 
 This table shows the greatest results I've gotten so far using my training strategy on the datasets.
 
-| Dataset | Method      | Accuracy/F1 score/mIoU | Checkpoint     | Log            |
-| ------- | ----------- | ---------------------- | -------------- | -------------- |
-| DRIVE   | Unet (2015) |                        | coming soon... | coming soon... |
-|         |             |                        |                |                |
-|         |             |                        |                |                |
-|         |             |                        |                |                |
-|         |             |                        |                |                |
-|         |             |                        |                |                |
-|         |             |                        |                |                |
+| Dataset   | Method            | Accuracy/F1 score/mIoU           | Checkpoint     | Log            |
+| --------- | ----------------- | -------------------------------- | -------------- | -------------- |
+| DRIVE     | Unet (2015)       | 0.9283/0.7561/0.6518             | coming soon... | coming soon... |
+| DRIVE     | R2-Unet (2018)    | coming soon...                   |                |                |
+| DRIVE     | Att-Unet (2018)   | 0.9687/0.9024/0.8310             |                |                |
+| DRIVE     | R2Att-Unet (2018) | 0.9700/0.9011/0.8290             |                |                |
+| DRIVE     | Unet+Ours         | 0.9688/0.9032/0.8323             |                |                |
+| DRIVE     | R2Att-Unet+Ours   | 0.9622/0.8718/0.7813             |                |                |
+| DRIVE     | Att-Unet+Ours     | **0.9731**/**0.9148**/**0.8499** |                |                |
+| Chase_db1 | Unet (2015)       | coming soon...                   |                |                |
+| Chase_db1 | Att-Unet (2018)   |                                  |                |                |
+| Chase_db1 | Unet+Ours         |                                  |                |                |
+| Chase_db1 | Att-Unet+Ours     |                                  |                |                |
 
 
 
-## 运行方法
+## 文件结构 Structure
+
+
+
+
+
+## 运行方法 Usage
+
+
 
 
 
