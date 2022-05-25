@@ -3,7 +3,7 @@
 ## 简介 Introduction
 
 | Image                    | Ground Truth                | Unet                       | Unet+Ours                     | Att-Unet                      | Att-Unet+Ours                    |
-| ------------------------ | --------------------------- | -------------------------- | ----------------------------- | ----------------------------- | -------------------------------- |
+| ------------------------ | ------------------------ | ------------------------ | ------------------------ | ------------------------ | ------------------------ |
 | ![](figures/16_test.png) | ![](figures/16_manual2.gif) | ![](figures/16_unet_0.png) | ![](figures/16_unet_5e-6.png) | ![](figures/16_attunet_0.png) | ![](figures/16_attunet_1e-6.png) |
 | ![](figures/11_test.png) | ![](figures/11_manual2.gif) | ![](figures/11_unet_0.png) | ![](figures/11_unet_5e-6.png) | ![](figures/11_attunet_0.png) | ![](figures/11_attunet_1e-6.png) |
 
