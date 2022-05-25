@@ -2,7 +2,10 @@
 
 ## 简介 Introduction
 
-coming soon...
+| Image                    | Ground Truth                | Unet                       | Unet+Ours                     | Att-Unet                      | Att-Unet+Ours                    |
+| ------------------------ | --------------------------- | -------------------------- | ----------------------------- | ----------------------------- | -------------------------------- |
+| ![](figures/16_test.png) | ![](figures/16_manual2.gif) | ![](figures/16_unet_0.png) | ![](figures/16_unet_5e-6.png) | ![](figures/16_attunet_0.png) | ![](figures/16_attunet_1e-6.png) |
+| ![](figures/11_test.png) | ![](figures/11_manual2.gif) | ![](figures/11_unet_0.png) | ![](figures/11_unet_5e-6.png) | ![](figures/11_attunet_0.png) | ![](figures/11_attunet_1e-6.png) |
 
 
 
@@ -54,17 +57,81 @@ This table shows the greatest results I've gotten so far using my training strat
 
 
 
-## 文件结构 Structure
+## 项目结构 Structure
 
-
+```shell
++--backbones  # Network to use.
+|      +--fcn.py
+|      +--pfan.py
+|      +--r2unet.py
+|      +--unet.py
+|      +--__init__.py
++--hyper_parameters.py
++--inference.py  # Inference the model.
++--readme.md
++--run.sh
++--src
+|      +--get_transforms.py
+|      +--loss.py  # Loss function of the project.
+|      +--__init__.py
++--steps # Steps of training.
+|      +--make_data.py
+|      +--make_data_inference.py
+|      +--make_net.py
+|      +--train_eval_model.py
+|      +--__init__.py
++--trainLSF.py
++--utils # Some utils.
+|      +--emailSender.py
+|      +--eval_utils.py
+|      +--handy_functions.py
+|      +--metric_logger.py
+|      +--result_analysis.py
+|      +--timer.py
+|      +--transforms.py
+|      +--__init__.py
+```
 
 
 
 ## 运行方法 Usage
 
+```bash
+ # read usage
+ python trainLSF.py --help
+```
 
 
 
+### 训练 Train
+
+- 修改合适的超参数，然后进行训练。
+
+- Modify the hyperparameters, and then train.
+
+They are in **hyper_parameters.py**
+
+```bash
+python trainLSF.py
+```
+
+
+
+### 结果 Inference
+
+- 修改合适的超参数，然后生成结果。
+
+- Modify the hyperparameters and generate the results.
+
+They are also in **hyper_parameters.py**
+
+```
+python inference.py
+```
+
+
+
+ ### 批量训练 Batch training
 
 ```bash
 # 后台运行
