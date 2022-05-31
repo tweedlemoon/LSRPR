@@ -2,8 +2,8 @@ import time
 
 import torch
 
-from backbones.unet import create_unet_model
-from backbones.r2unet import *
+from models.unet import create_unet_model
+from models.r2unet import *
 from utils.timer import Timer
 
 

@@ -9,8 +9,8 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from hyper_parameters import *
 from utils.handy_functions import *
-from backbones.unet import create_unet_model
-from backbones.r2unet import *
+from models.unet import create_unet_model
+from models.r2unet import *
 import PIL
 from torchvision import transforms
 
