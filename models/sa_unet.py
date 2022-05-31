@@ -49,15 +49,27 @@ class DropBlock(nn.Module):
 
 
 class SpatialAttention(nn.Module):
+    """
+    This is a part of the following article.
+    See:https://openaccess.thecvf.com/content_ECCV_2018/papers/Sanghyun_Woo_Convolutional_Block_Attention_ECCV_2018_paper.pdf
+    """
+
     def __init__(self, in_ch=2, out_ch=1, kernel_size=7):
         super(SpatialAttention, self).__init__()
         self.kernel_size = kernel_size
         self.conv = nn.Sequential(
+            # padding='same' is available only in the pytorch=1.9.0+
+            # so if your environment is pytorch 1.9.0+ use the first sentence.
+            # nn.Conv2d(in_channels=in_ch, out_channels=out_ch, kernel_size=kernel_size, padding='same', stride=1),
             nn.Conv2d(in_channels=in_ch, out_channels=out_ch, kernel_size=kernel_size, padding=(3, 3), stride=1),
             nn.Sigmoid(),
         )
 
     def forward(self, x: Tensor) -> torch.Tensor:
+        """
+        :param x: input tensor (batch_size,channel,weight,height)
+        :return: the same shape (batch_size,channel,weight,height)
+        """
         # Average Pooling through channels，但在pytorch中不能这么写
         avg_branch = x.mean(1).unsqueeze(1)
         max_branch = x.max(1).values.unsqueeze(1)
@@ -67,41 +79,15 @@ class SpatialAttention(nn.Module):
         return out
 
 
-def spatial_attention(input_feature, kernelsize=7):
-    pass
-    # if K.image_data_format() == "channels_first":
-    #     channel = input_feature._keras_shape[1]
-    #     cbam_feature = Permute((2, 3, 1))(input_feature)
-    # else:
-    #     channel = input_feature._keras_shape[-1]
-    #     cbam_feature = input_feature
-    #
-    # avg_pool = Lambda(lambda x: K.mean(x, axis=3, keepdims=True))(cbam_feature)
-    # assert avg_pool._keras_shape[-1] == 1
-    # max_pool = Lambda(lambda x: K.max(x, axis=3, keepdims=True))(cbam_feature)
-    # assert max_pool._keras_shape[-1] == 1
-    # concat = Concatenate(axis=3)([avg_pool, max_pool])
-    # assert concat._keras_shape[-1] == 2
-    # cbam_feature = Conv2D(filters=1,
-    #                       kernel_size=kernel_size,
-    #                       strides=1,
-    #                       padding='same',
-    #                       activation='sigmoid',
-    #                       kernel_initializer='he_normal',
-    #                       use_bias=False)(concat)
-    # assert cbam_feature._keras_shape[-1] == 1
-    #
-    # if K.image_data_format() == "channels_first":
-    #     cbam_feature = Permute((3, 1, 2))(cbam_feature)
-
-    # return torch.mul(input_feature, cbam_feature)
-
-
 class PadAndCat(nn.Module):
     def __init__(self):
         super(PadAndCat, self).__init__()
 
     def forward(self, x1: torch.Tensor, x2: torch.Tensor) -> torch.Tensor:
+        """
+        pad x1 if the shape of x1 is different from x2
+        then return the concat of x1 and x2 in the dim 1
+        """
         diff_y = x2.size()[2] - x1.size()[2]
         diff_x = x2.size()[3] - x1.size()[3]
 
@@ -114,6 +100,10 @@ class PadAndCat(nn.Module):
 
 
 class DoubleConv_D(nn.Module):
+    """
+    Double convolution with the DropBlock in it.
+    """
+
     def __init__(self, ch_in, ch_out, block_size=7, keep_prob=0.9):
         super(DoubleConv_D, self).__init__()
         self.conv = nn.Sequential(
@@ -133,6 +123,10 @@ class DoubleConv_D(nn.Module):
 
 
 class SingleConv_D(nn.Module):
+    """
+    Single convolution with the DropBlock in it.
+    """
+
     def __init__(self, ch_in, ch_out, block_size=7, keep_prob=0.9):
         super(SingleConv_D, self).__init__()
         self.conv = nn.Sequential(
