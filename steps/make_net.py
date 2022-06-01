@@ -4,6 +4,7 @@ import torch
 
 from models.unet import create_unet_model
 from models.r2unet import *
+from models.sa_unet import SA_Unet
 from utils.timer import Timer
 
 
@@ -28,6 +29,8 @@ class MakeNet:
             self.make_attunet(args)
         elif args.back_bone == "r2attunet":
             self.make_r2attunet(args)
+        elif args.back_bone == 'saunet':
+            self.make_saunet(args)
 
         # 追踪迭代的变量作为一个list
         self.params_to_optimize = []
@@ -79,6 +82,11 @@ class MakeNet:
 
     def make_r2attunet(self, args):
         self.model = R2AttU_Net(output_ch=args.num_classes)
+        self.model.to(args.device)
+        print(self.model)
+
+    def make_saunet(self, args):
+        self.model = SA_Unet(output_ch=args.num_classes, sa=True, sa_kernel_size=7)
         self.model.to(args.device)
         print(self.model)
 

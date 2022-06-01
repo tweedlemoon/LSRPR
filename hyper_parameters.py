@@ -29,7 +29,7 @@ Which_GPU = "0"
 # which dataset to use
 Data_Name = "DRIVE"
 # which backbone to use
-Back_Bone = "unet"
+Back_Bone = 'saunet'
 # FCN use Aux.
 Aux = True if Back_Bone == "fcn" else False
 # learning rate initially, it will decrease when training
