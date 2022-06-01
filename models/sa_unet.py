@@ -61,7 +61,13 @@ class SpatialAttention(nn.Module):
             # padding='same' is available only in the pytorch=1.9.0+
             # so if your environment is pytorch 1.9.0+ use the first sentence.
             # nn.Conv2d(in_channels=in_ch, out_channels=out_ch, kernel_size=kernel_size, padding='same', stride=1),
-            nn.Conv2d(in_channels=in_ch, out_channels=out_ch, kernel_size=kernel_size, padding=(3, 3), stride=1),
+            nn.Conv2d(
+                in_channels=in_ch,
+                out_channels=out_ch,
+                kernel_size=kernel_size,
+                padding=(self.kernel_size // 2, self.kernel_size // 2),
+                stride=1,
+            ),
             nn.Sigmoid(),
         )
 
@@ -170,28 +176,28 @@ class UpConv(nn.Module):
 
 
 class SA_Unet(nn.Module):
-    def __init__(self, img_ch=3, output_ch=2, sa=True, sa_kernel_size=7):
+    def __init__(self, img_ch=3, output_ch=2, base_size: int = 16, sa=True, sa_kernel_size=7):
         super(SA_Unet, self).__init__()
 
         self.Maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.Conv1 = DoubleConv_D(ch_in=img_ch, ch_out=16)
-        self.Conv2 = DoubleConv_D(ch_in=16, ch_out=32)
-        self.Conv3 = DoubleConv_D(ch_in=32, ch_out=64)
+        self.Conv1 = DoubleConv_D(ch_in=img_ch, ch_out=base_size)
+        self.Conv2 = DoubleConv_D(ch_in=base_size, ch_out=2 * base_size)
+        self.Conv3 = DoubleConv_D(ch_in=2 * base_size, ch_out=4 * base_size)
 
         # 最底下是一个single+一个spatial+一个single
-        self.Conv4 = SingleConv_D(ch_in=64, ch_out=128)
+        self.Conv4 = SingleConv_D(ch_in=4 * base_size, ch_out=8 * base_size)
         self.SpAtt = SpatialAttention(kernel_size=sa_kernel_size) if sa else SingleConv_D(ch_in=128, ch_out=128)
-        self.Conv5 = SingleConv_D(ch_in=128, ch_out=128)
+        self.Conv5 = SingleConv_D(ch_in=8 * base_size, ch_out=8 * base_size)
 
-        self.Up3 = UpConv(ch_in=128, ch_out=64)
-        self.Up_conv3 = DoubleConv_D(ch_in=128, ch_out=64)
-        self.Up2 = UpConv(ch_in=64, ch_out=32)
-        self.Up_conv2 = DoubleConv_D(ch_in=64, ch_out=32)
-        self.Up1 = UpConv(ch_in=32, ch_out=16)
-        self.Up_conv1 = DoubleConv_D(ch_in=32, ch_out=16)
+        self.Up3 = UpConv(ch_in=8 * base_size, ch_out=4 * base_size)
+        self.Up_conv3 = DoubleConv_D(ch_in=8 * base_size, ch_out=4 * base_size)
+        self.Up2 = UpConv(ch_in=4 * base_size, ch_out=2 * base_size)
+        self.Up_conv2 = DoubleConv_D(ch_in=4 * base_size, ch_out=2 * base_size)
+        self.Up1 = UpConv(ch_in=2 * base_size, ch_out=base_size)
+        self.Up_conv1 = DoubleConv_D(ch_in=2 * base_size, ch_out=base_size)
 
-        self.Conv_1x1 = nn.Conv2d(16, output_ch, kernel_size=1, stride=1, padding=0)
+        self.Conv_1x1 = nn.Conv2d(base_size, output_ch, kernel_size=1, stride=1, padding=0)
 
         self.PadAndCat = PadAndCat()
 
@@ -235,7 +241,7 @@ def test():
     # device = "cuda" if torch.cuda.is_available() else "cpu"
     dummy_input = torch.randn(2, 3, 584, 565).to(device)
 
-    model = SA_Unet(output_ch=2).to(device)
+    model = SA_Unet(output_ch=2, base_size=64).to(device)
 
     output = model(dummy_input)
 
