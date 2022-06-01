@@ -5,6 +5,7 @@ import torch
 from models.unet import create_unet_model
 from models.r2unet import *
 from models.sa_unet import SA_Unet
+from models.attunetplus import AttU_Net_Plus
 from utils.timer import Timer
 
 
@@ -86,7 +87,12 @@ class MakeNet:
         print(self.model)
 
     def make_saunet(self, args):
-        self.model = SA_Unet(output_ch=args.num_classes, sa=True, sa_kernel_size=7)
+        self.model = SA_Unet(output_ch=args.num_classes, base_size=16, sa=True, sa_kernel_size=7)
+        self.model.to(args.device)
+        print(self.model)
+
+    def make_attunetplus(self, args):
+        self.model = AttU_Net_Plus(output_ch=args.num_classes, sa=True, sa_kernel_size=7)
         self.model.to(args.device)
         print(self.model)
 
