@@ -32,6 +32,8 @@ class MakeNet:
             self.make_r2attunet(args)
         elif args.back_bone == 'saunet':
             self.make_saunet(args)
+        elif args.back_bone == 'attunetplus':
+            self.make_attunetplus(args)
 
         # 追踪迭代的变量作为一个list
         self.params_to_optimize = []
