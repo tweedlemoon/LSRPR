@@ -20,8 +20,8 @@ from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 
 Model_path = 'experimental_data/DRIVE/model-r2attunet-coe-0-time-20220523-1-best_dice-0.7942858338356018.pth'
-Model = 'r2attunet'
-Data_Name = 'DRIVE'
+Model = Model_path.split('/')[-1:][0].split('-')[1]
+Data_Name = Model_path.split('/')[-2:][0]
 Is_Inf_Make = True
 
 
@@ -33,10 +33,10 @@ def parse_arguments():
     parser.add_argument("--data-path", default=Data_Root, help="data root")
     parser.add_argument("--device", default=str(Device), type=str, help="training device")
     parser.add_argument('--model_path', default=Model_path, help="the best trained model root")
-    parser.add_argument("--back-bone", default=Model, type=str,
-                        choices=["fcn", "unet", "r2unet", "attunet", "r2attunet"])
+    parser.add_argument("--back-bone", default='unet', type=str,
+                        choices=['fcn', 'unet', 'r2unet', 'attunet', 'r2attunet'])
     parser.add_argument("--num-classes", default=Class_Num, type=int)
-    parser.add_argument("--dataset", default=Data_Name, type=str, choices=["DRIVE", 'Chase_db1'],
+    parser.add_argument("--dataset", default='DRIVE', type=str, choices=["DRIVE", 'Chase_db1'],
                         help="which dataset to use")
 
     return parser.parse_args()
@@ -195,6 +195,9 @@ def run_inference(args):
 
 if __name__ == '__main__':
     args = parse_arguments()
+    args.back_bone = args.model_path.split('/')[-1:][0].split('-')[1]
+    args.dataset = args.model_path.split('/')[-2:][0]
+
     # 当显存不够时使用
     args.device = 'cpu'
     # 预测图存储位置

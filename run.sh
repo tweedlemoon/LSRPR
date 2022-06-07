@@ -1,13 +1,41 @@
+cd /liuyifei/LSFforSeg
+
 python trainLSF.py \
-  --which-gpu 0 \
-  --device cuda \
-  --dataset DRIVE \
-  --back-bone attunetplus \
-  --data-path "/root/autodl-tmp/liuyifei" \
-  --level-set-coe 0 \
-  --loss-weight 1.0 2.0 \
-  --batch-size 2 \
-  --epochs 300 \
-  --lr 0.01
+--data-path "/root/autodl-tmp/liuyifei" \
+--dataset DRIVE \
+-b 2 \
+--epochs 200 \
+--level-set-coe 0 \
+--loss-weight 1.0 2.0 \
+--back-bone saunet
+
+python trainLSF.py \
+--data-path "/root/autodl-tmp/liuyifei" \
+--dataset DRIVE \
+-b 2 \
+--epochs 300 \
+--level-set-coe 0.000001 \
+--loss-weight 1.0 2.0 \
+--back-bone saunet
+
+python trainLSF.py \
+--data-path "/root/autodl-tmp/liuyifei" \
+--dataset Chase_db1 \
+-b 2 \
+--epochs 200 \
+--level-set-coe 0 \
+--loss-weight 1.0 2.0 \
+--back-bone saunet
+
+python trainLSF.py \
+--data-path "/root/autodl-tmp/liuyifei" \
+--dataset Chase_db1 \
+-b 2 \
+--epochs 300 \
+--level-set-coe 0.000001 \
+--loss-weight 1.0 2.0 \
+--back-bone saunet
+
+python utils/emailSender.py
 
 shutdown -h now
