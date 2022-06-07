@@ -149,4 +149,3 @@ test_picture/*
 experimental_data/*
 __pychache__/*
 predict_pic/*
-execute_example.sh
