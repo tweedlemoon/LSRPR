@@ -15,6 +15,7 @@ python trainLSF.py \
 python inference.py \
   --which-gpu 0 \
   --device cuda \
+  --data-path /root/autodl-tmp/liuyifei \
   --model_path experimental_data/DRIVE/model-r2attunet-coe-0-time-20220523-1-best_dice-0.7942858338356018.pth
 
 shutdown -h now
