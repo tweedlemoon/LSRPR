@@ -196,7 +196,7 @@ class PadAndCat(nn.Module):
 
 
 class AttU_Net_Plus(nn.Module):
-    def __init__(self, img_ch=3, output_ch=1, base_size: int = 64, sa: bool = False, sa_kernel_size: int = 7):
+    def __init__(self, img_ch=3, output_ch=2, base_size: int = 64, sa: bool = False, sa_kernel_size: int = 7):
         super(AttU_Net_Plus, self).__init__()
         self.sa = sa
 

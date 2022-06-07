@@ -11,6 +11,8 @@ from hyper_parameters import *
 from utils.handy_functions import *
 from models.unet import create_unet_model
 from models.r2unet import *
+from models.sa_unet import SA_Unet
+from models.attunetplus import AttU_Net_Plus
 import PIL
 from torchvision import transforms
 
@@ -34,7 +36,7 @@ def parse_arguments():
     parser.add_argument("--device", default=str(Device), type=str, help="training device")
     parser.add_argument('--model_path', default=Model_path, help="the best trained model root")
     parser.add_argument("--back-bone", default='unet', type=str,
-                        choices=['fcn', 'unet', 'r2unet', 'attunet', 'r2attunet'])
+                        choices=["fcn", "unet", "r2unet", "attunet", "r2attunet", 'saunet', 'attunetplus'])
     parser.add_argument("--num-classes", default=Class_Num, type=int)
     parser.add_argument("--dataset", default='DRIVE', type=str, choices=["DRIVE", 'Chase_db1'],
                         help="which dataset to use")
@@ -51,6 +53,10 @@ def create_model(args):
         return AttU_Net(output_ch=args.num_classes + 1)
     elif args.back_bone == 'r2attunet':
         return R2AttU_Net(output_ch=args.num_classes + 1)
+    elif args.back_bone == 'saunet':
+        return SA_Unet(base_size=16)
+    elif args.back_bone == 'attunetplus':
+        return AttU_Net_Plus(output_ch=args.num_classes + 1, sa=True)
 
 
 def compute_index(args):
