@@ -21,7 +21,7 @@ from utils.timer import Timer
 from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 
-Model_path = 'experimental_data/DRIVE/model-r2attunet-coe-0-time-20220523-1-best_dice-0.7942858338356018.pth'
+Model_path = 'experimental_data/DRIVE/model-attunet-coe-1e-06-time-20220523-1-best_dice-0.8230832815170288.pth'
 Model = Model_path.split('/')[-1:][0].split('-')[1]
 Data_Name = Model_path.split('/')[-2:][0]
 Is_Inf_Make = True
@@ -205,10 +205,10 @@ if __name__ == '__main__':
     args.dataset = args.model_path.split('/')[-2:][0]
 
     # 当显存不够时使用
-    args.device = 'cpu'
+    # args.device = 'cpu'
     # 预测图存储位置
     if not os.path.exists('predict_pic/'):
         os.mkdir('predict_pic/')
 
     compute_index(args=args)
-    # run_inference(args=args)
+    run_inference(args=args)
