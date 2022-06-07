@@ -7,7 +7,7 @@ python trainLSF.py \
   --epochs 200 \
   --level-set-coe 0 \
   --loss-weight 1.0 2.0 \
-  --back-bone saunet
+  --back-bone attunetplus
 
 python trainLSF.py \
   --data-path "/root/autodl-tmp/liuyifei" \
@@ -16,7 +16,7 @@ python trainLSF.py \
   --epochs 300 \
   --level-set-coe 0.000001 \
   --loss-weight 1.0 2.0 \
-  --back-bone saunet
+  --back-bone attunetplus
 
 python trainLSF.py \
   --data-path "/root/autodl-tmp/liuyifei" \
@@ -25,7 +25,7 @@ python trainLSF.py \
   --epochs 200 \
   --level-set-coe 0 \
   --loss-weight 1.0 2.0 \
-  --back-bone saunet
+  --back-bone attunetplus
 
 python trainLSF.py \
   --data-path "/root/autodl-tmp/liuyifei" \
@@ -34,7 +34,7 @@ python trainLSF.py \
   --epochs 300 \
   --level-set-coe 0.000001 \
   --loss-weight 1.0 2.0 \
-  --back-bone saunet
+  --back-bone attunetplus
 
 python utils/emailSender.py
 
