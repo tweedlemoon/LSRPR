@@ -257,7 +257,16 @@ class MakeData:
         if args.dataset == "voc2012":
             self.make_voc2012(args=args)
         elif args.dataset == "DRIVE":
+            self.train_dataset_manual_1 = None
+            self.test_dataset_manual_1 = None
+            self.test_dataset_manual_2 = None
+
+            self.train_loader_manual_1 = None
+            self.test_loader_manual_1 = None
+            self.test_loader_manual_2 = None
             self.make_DRIVE(args=args)
+            self.loader_manual_1 = self.test_loader_manual_1
+            self.loader_manual_2 = self.test_loader_manual_2
         elif args.dataset == 'Chase_db1':
             self.make_Chase_db1(args=args)
 
