@@ -2,7 +2,6 @@ import os
 import random
 import sys
 import platform
-import cv2
 import numpy as np
 import torch
 from PIL import Image
@@ -190,12 +189,12 @@ if __name__ == "__main__":
     # cv2.waitKey(0)
 
     # 先放原图
-    input_pic = cv2.imread(input_pic_path)
-    target_pic = cv2.imread(target_pic_path)
-    if platform.system() == "Windows":
-        cv2.imshow('original input picture', input_pic)
-        cv2.imshow('original target picture', target_pic)
-        cv2.waitKey(0)
+    # input_pic = cv2.imread(input_pic_path)
+    # target_pic = cv2.imread(target_pic_path)
+    # if platform.system() == "Windows":
+    #     cv2.imshow('original input picture', input_pic)
+    #     cv2.imshow('original target picture', target_pic)
+    #     cv2.waitKey(0)
 
     judge = int(input("Input a number\n"
                       "1:RandomResize\n"

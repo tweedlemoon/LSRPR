@@ -1,12 +1,5 @@
 import argparse
 
-import cv2
-import numpy as np
-import tqdm
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader
 from hyper_parameters import *
 from utils.handy_functions import *
 from models.unet import create_unet_model
@@ -21,10 +14,8 @@ from utils.timer import Timer
 from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 
-Model_path = 'experimental_data/DRIVE/model-attunet-coe-1e-06-time-20220523-1-best_dice-0.8230832815170288.pth'
-Model = Model_path.split('/')[-1:][0].split('-')[1]
-Data_Name = Model_path.split('/')[-2:][0]
-Is_Inf_Make = True
+Model_path = 'experimental_data/DRIVE/model-unet-coe-0-author.pth'
+Manual = 'manual2'
 
 
 def parse_arguments():
@@ -40,6 +31,17 @@ def parse_arguments():
     parser.add_argument("--num-classes", default=Class_Num, type=int)
     parser.add_argument("--dataset", default='DRIVE', type=str, choices=["DRIVE", 'Chase_db1'],
                         help="which dataset to use")
+    parser.add_argument("--is_val", default='val', type=str, choices=['train', 'val'],
+                        help='Use test or train to inference. Only for DRIVE dataset.')
+    parser.add_argument("--manual", default=Manual, type=str, choices=['manual1', 'manual2'],
+                        help='Use which manual to inference.')
+
+    parser.add_argument('--show', default='no', type=str, choices=['yes', 'no'],
+                        help='Whether to output the result one by one.')
+    parser.add_argument('--visualization', '-v', default='all', type=str, choices=['all', 'none'],
+                        help='Whether to generate all the result of the network.')
+    parser.add_argument('--is_mine', default='origin', type=str, choices=['origin', 'mine'],
+                        help='If the model has levelset function.')
 
     return parser.parse_args()
 
@@ -69,11 +71,19 @@ def compute_index(args):
     model.load_state_dict(pth['model'])
 
     # 多张图片测试，直接制作dataloader
-    if Is_Inf_Make:
-        # loader = infmk(args=args).loader_manual_1
-        loader = infmk(args=args).loader_manual_2
-    else:
-        loader = originmk(args=args).val_loader
+    if args.dataset == 'DRIVE':
+        if args.is_val == 'val':
+            if args.manual == 'manual1':
+                loader = infmk(args=args).loader_manual_1
+            elif args.manual == 'manual2':
+                loader = infmk(args=args).loader_manual_2
+        elif args.is_val == 'train':
+            loader = infmk(args=args).train_dataset_manual_1
+    elif args.dataset == 'Chase_db1':
+        if args.manual == 'manual1':
+            loader = infmk(args=args).loader_manual_1
+        elif args.manual == 'manual2':
+            loader = infmk(args=args).loader_manual_2
 
     all_f1_score = 0.0
     all_accuracy = 0.0
@@ -124,11 +134,19 @@ def run_inference(args):
     model.load_state_dict(pth['model'])
 
     # 多张图片测试，直接制作dataloader
-    if Is_Inf_Make:
-        # loader = infmk(args=args).loader_manual_1
-        loader = infmk(args=args).loader_manual_2
-    else:
-        loader = originmk(args=args).val_loader
+    if args.dataset == 'DRIVE':
+        if args.is_val == 'val':
+            if args.manual == 'manual1':
+                loader = infmk(args=args).loader_manual_1
+            elif args.manual == 'manual2':
+                loader = infmk(args=args).loader_manual_2
+        elif args.is_val == 'train':
+            loader = infmk(args=args).train_dataset_manual_1
+    elif args.dataset == 'Chase_db1':
+        if args.manual == 'manual1':
+            loader = infmk(args=args).loader_manual_1
+        elif args.manual == 'manual2':
+            loader = infmk(args=args).loader_manual_2
 
     model.eval()
     if Data_Name == 'DRIVE':
@@ -158,15 +176,21 @@ def run_inference(args):
                 roi_img = np.array(roi_img)
                 np_argmax_output[roi_img == 0] = 0
 
-                # triple_img_show(original_img=format_convert(original_img),
-                #                 original_mask=format_convert(ground_truth),
-                #                 predicted_img=format_convert(np_argmax_output))
+                if args.show == 'yes':
+                    triple_img_show(original_img=format_convert(original_img),
+                                    original_mask=format_convert(ground_truth),
+                                    predicted_img=format_convert(np_argmax_output))
 
-                predicted_img = format_convert(np_argmax_output)
-                this_img = os.path.basename(loader.dataset.img_list[idx])
-                this_img = this_img.split('.')[0]
-                save_img_name = 'predict_pic/' + this_img + '_' + Model + '_prediciton' + '.png'
-                predicted_img.save(save_img_name)
+                if args.visualization == 'all':
+                    parent_dir = os.path.join('predict_pic', args.back_bone + '_' + args.is_mine + '_' + args.dataset)
+                    generate_path(parent_dir)
+                    predicted_img = format_convert(np_argmax_output)
+                    this_img = os.path.basename(loader.dataset.img_list[idx])
+                    this_img = this_img.split('.')[0]
+                    save_img_name = os.path.join(parent_dir, this_img + '_' + args.back_bone + '_prediciton' + '.png')
+                    predicted_img.save(save_img_name)
+                print('Done ' + '[' + str(idx + 1) + '/' + str(loader.dataset.__len__()) + ']')
+
     elif Data_Name == 'Chase_db1':
         with torch.no_grad():
             for idx, (img, real_result) in enumerate(loader, start=0):
@@ -188,27 +212,39 @@ def run_inference(args):
                 np_argmax_output = np_argmax_output.astype(np.uint8).squeeze(0) * 255
                 # val_range("Numpy argmax output", np_argmax_output)
 
-                # triple_img_show(original_img=format_convert(original_img),
-                #                 original_mask=format_convert(ground_truth),
-                #                 predicted_img=format_convert(np_argmax_output))
+                if args.show == 'yes':
+                    triple_img_show(original_img=format_convert(original_img),
+                                    original_mask=format_convert(ground_truth),
+                                    predicted_img=format_convert(np_argmax_output))
+                if args.visualization == 'all':
+                    parent_dir = os.path.join('predict_pic', args.back_bone + '_' + args.is_mine + '_' + args.dataset)
+                    generate_path(parent_dir)
+                    predicted_img = format_convert(np_argmax_output)
+                    this_img = os.path.basename(loader.dataset.img_list[idx])
+                    this_img = this_img.split('.')[0]
+                    save_img_name = os.path.join(parent_dir, this_img + '_' + args.back_bone + '_prediciton' + '.png')
+                    predicted_img.save(save_img_name)
+                print('Done ' + '[' + str(idx + 1) + '/' + str(loader.dataset.__len__()) + ']')
 
-                predicted_img = format_convert(np_argmax_output)
-                this_img = os.path.basename(loader.dataset.img_list[idx])
-                this_img = this_img.split('.')[0]
-                save_img_name = 'predict_pic/' + this_img + '_' + Model + '_prediciton' + '.png'
-                predicted_img.save(save_img_name)
+
+def generate_path(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
 
 
 if __name__ == '__main__':
     args = parse_arguments()
     args.back_bone = args.model_path.split('/')[-1:][0].split('-')[1]
     args.dataset = args.model_path.split('/')[-2:][0]
+    args.is_mine = 'origin' if Model_path.split('/')[-1:][0].split('-')[3] == '0' else 'mine'
 
     # 当显存不够时使用
     # args.device = 'cpu'
+    if args.device == 'cuda':
+        # use which GPU and initial
+        os.environ["CUDA_VISIBLE_DEVICES"] = args.which_gpu
     # 预测图存储位置
-    if not os.path.exists('predict_pic/'):
-        os.mkdir('predict_pic/')
+    generate_path('predict_pic/')
 
-    compute_index(args=args)
+    # compute_index(args=args)
     run_inference(args=args)

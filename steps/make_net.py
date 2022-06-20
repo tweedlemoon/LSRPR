@@ -1,11 +1,9 @@
 import time
 
-import torch
-
-from models.unet import create_unet_model
+from models.attunetplus import AttU_Net_Plus
 from models.r2unet import *
 from models.sa_unet import SA_Unet
-from models.attunetplus import AttU_Net_Plus
+from models.unet import create_unet_model
 from utils.timer import Timer
 
 

@@ -1,7 +1,5 @@
 import datetime
 import smtplib
-import os
-import sys
 from email.mime.text import MIMEText
 from email.utils import formataddr
 

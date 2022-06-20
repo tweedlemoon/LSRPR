@@ -1,7 +1,6 @@
 import os
 
 import PIL.Image
-import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -38,17 +37,6 @@ def val_range(name: str, input_val):
               "\nhas a range between", min_val, "and", max_val)
     print("------------------------------------------")
     return min_val, max_val
-
-
-def cv2_img_show(img):
-    """
-    使用opencv展示图片（不推荐）
-    :param img:图片
-    """
-    img = np.array(img)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    cv2.imshow("img", img)
-    cv2.waitKey(0)
 
 
 def img_show(img):
@@ -176,19 +164,4 @@ def dfs_showdir(path, depth):
 
 
 if __name__ == '__main__':
-    pic = 'E:/workplace_python/LSFforSeg/test_picture/ILSVRC2012_test_00000038.jpg'
-    img_PIL = PIL.Image.open(pic)
-    img_show(format_convert(img_PIL))
-    # img_show(img_PIL)
-
-    img_PIL = img_PIL.convert('RGB')
-
-    img_opencv = cv2.imread(pic)
-    img_opencv = cv2.cvtColor(img_opencv, cv2.COLOR_BGR2RGB)
-
-    img_plt = plt.imread(pic)
-
-    img_tensor = transforms.ToTensor()(img_PIL)
-    img_numpy = np.array(img_PIL)
-    val_range('tensor img', img_numpy)
     pass
