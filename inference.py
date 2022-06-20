@@ -14,7 +14,7 @@ from utils.timer import Timer
 from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 
-Model_path = 'experimental_data/DRIVE/model-unet-coe-0-author.pth'
+Model_path = 'experimental_data/Chase_db1/model-attunet-coe-1e-06-time-20220524-1-best_dice-0.8750033974647522.pth'
 Manual = 'manual2'
 
 
@@ -149,7 +149,7 @@ def run_inference(args):
             loader = infmk(args=args).loader_manual_2
 
     model.eval()
-    if Data_Name == 'DRIVE':
+    if args.dataset == 'DRIVE':
         with torch.no_grad():
             for idx, (img, real_result) in enumerate(loader, start=0):
                 original_img = loader.dataset.img_list[idx]
@@ -161,7 +161,7 @@ def run_inference(args):
 
                 img = img.to(device)
                 net_output = model(img)['out']
-                val_range("Network output", net_output)
+                # val_range("Network output", net_output)
                 # 进行argmax操作
                 argmax_output = net_output.argmax(1)
                 # val_range("Argmax output", argmax_output)
@@ -191,7 +191,7 @@ def run_inference(args):
                     predicted_img.save(save_img_name)
                 print('Done ' + '[' + str(idx + 1) + '/' + str(loader.dataset.__len__()) + ']')
 
-    elif Data_Name == 'Chase_db1':
+    elif args.dataset == 'Chase_db1':
         with torch.no_grad():
             for idx, (img, real_result) in enumerate(loader, start=0):
                 original_img = loader.dataset.img_list[idx]
@@ -202,7 +202,7 @@ def run_inference(args):
 
                 img = img.to(device)
                 net_output = model(img)['out']
-                val_range("Network output", net_output)
+                # val_range("Network output", net_output)
                 # 进行argmax操作
                 argmax_output = net_output.argmax(1)
                 # val_range("Argmax output", argmax_output)
@@ -236,7 +236,10 @@ if __name__ == '__main__':
     args = parse_arguments()
     args.back_bone = args.model_path.split('/')[-1:][0].split('-')[1]
     args.dataset = args.model_path.split('/')[-2:][0]
-    args.is_mine = 'origin' if Model_path.split('/')[-1:][0].split('-')[3] == '0' else 'mine'
+    if Model_path.split('/')[-1:][0].split('-')[3] == '0' or Model_path.split('/')[-1:][0].split('-')[3] == '0.0':
+        args.is_mine = 'origin'
+    else:
+        args.is_mine = 'mine'
 
     # 当显存不够时使用
     # args.device = 'cpu'
@@ -246,5 +249,5 @@ if __name__ == '__main__':
     # 预测图存储位置
     generate_path('predict_pic/')
 
-    compute_index(args=args)
+    # compute_index(args=args)
     run_inference(args=args)
