@@ -14,7 +14,7 @@ from utils.timer import Timer
 from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 
-Model_path = 'experimental_data/Chase_db1/model-attunet-coe-1e-06-time-20220524-1-best_dice-0.8750033974647522.pth'
+Model_path = 'experimental_data/Chase_db1/model-r2unet-coe-0-time-20220517-2-best_dice-0.8106670379638672.pth'
 Manual = 'manual2'
 
 
@@ -236,7 +236,7 @@ if __name__ == '__main__':
     args = parse_arguments()
     args.back_bone = args.model_path.split('/')[-1:][0].split('-')[1]
     args.dataset = args.model_path.split('/')[-2:][0]
-    if Model_path.split('/')[-1:][0].split('-')[3] == '0' or Model_path.split('/')[-1:][0].split('-')[3] == '0.0':
+    if args.model_path.split('/')[-1:][0].split('-')[3] == '0' or args.model_path.split('/')[-1:][0].split('-')[3] == '0.0':
         args.is_mine = 'origin'
     else:
         args.is_mine = 'mine'
@@ -249,5 +249,5 @@ if __name__ == '__main__':
     # 预测图存储位置
     generate_path('predict_pic/')
 
-    # compute_index(args=args)
+    compute_index(args=args)
     run_inference(args=args)
