@@ -30,6 +30,8 @@ class MakeNet:
             self.make_r2attunet(args)
         elif args.back_bone == 'saunet':
             self.make_saunet(args)
+        elif args.back_bone == 'saunet64':
+            self.make_saunet64(args)
         elif args.back_bone == 'attunetplus':
             self.make_attunetplus(args)
 
@@ -88,6 +90,11 @@ class MakeNet:
 
     def make_saunet(self, args):
         self.model = SA_Unet(output_ch=args.num_classes, base_size=16, sa=True, sa_kernel_size=7)
+        self.model.to(args.device)
+        print(self.model)
+
+    def make_saunet64(self, args):
+        self.model = SA_Unet(output_ch=args.num_classes, base_size=64, sa=True, sa_kernel_size=7)
         self.model.to(args.device)
         print(self.model)
 

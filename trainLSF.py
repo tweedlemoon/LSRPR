@@ -17,7 +17,7 @@ def parse_args():
     parser.add_argument("--num-classes", default=Class_Num, type=int)
     parser.add_argument("--device", default=str(Device), type=str, help="training device")
     parser.add_argument("--back-bone", default=Back_Bone, type=str,
-                        choices=["fcn", "unet", "r2unet", "attunet", "r2attunet", 'saunet', 'attunetplus'])
+                        choices=["fcn", "unet", "r2unet", "attunet", "r2attunet", 'saunet', 'saunet64', 'attunetplus'])
     parser.add_argument("--pretrained", "-p", default=Pretrained, type=str, help="if load pretrained model, add here.")
     # Here is the auxilier loss, which is used in the pytorch official source code.
     parser.add_argument("--aux", default=Aux, type=bool, help="auxilier loss")
