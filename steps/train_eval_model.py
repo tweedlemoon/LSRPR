@@ -68,11 +68,12 @@ def train_eval_model(args, Data: MakeData, Net: MakeNet):
 
         if args.save_best is True:
             # torch.save(save_file, "save_weights/best_model.pth")
-            cur_pth = "model-{}-coe-{}-time-{}-best_dice-{}.pth" \
+            cur_pth = "model-{}-coe-{}-time-{}-best_dice-{}-{}.pth" \
                 .format(args.back_bone,
                         args.level_set_coe,
                         datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
                         best_dice,
+                        args.dataset,
                         )
 
             if last_pth != "":
