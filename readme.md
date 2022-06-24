@@ -64,6 +64,8 @@ This table shows the greatest results I've gotten so far using my training strat
 | Chase_db1 | Att-Unet+Ours              | **0.9724(↑)**/**0.8941**(↑)/**0.8190(↑)** |                |                |
 | Chase_db1 | SA-UNet(lightweight)(2021) | 0.9700/0.8863/0.8080                      |                |                |
 | Chase_db1 | SA-UNet(lightweight)+Ours  | 0.9704(↑)/0.8894(↑)/0.8120(↑)             |                |                |
+| Chase_db1 | SA-UNet(complex)           | 0.9715/0.8923/0.8165                      |                |                |
+| Chase_db1 | SA-UNet(complex)+Ours      | 0.9717(↑)/0.8934(↑)/0.8179(↑)             |                |                |
 
 
 

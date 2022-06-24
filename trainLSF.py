@@ -59,8 +59,10 @@ if __name__ == '__main__':
     args = parse_args()
     # +1这个1是背景background
     args.num_classes += 1
+    # 限制CPU进程数
+    os.environ["OMP_NUM_THREADS"] = '1'
     if args.device == 'cuda':
-        # use which GPU and initial
+        # use which GPU or and initial
         os.environ["CUDA_VISIBLE_DEVICES"] = args.which_gpu
     print(args)
     timer = Timer("Work begin.")

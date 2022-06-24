@@ -14,7 +14,7 @@ from utils.timer import Timer
 from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 
-Model_path = 'experimental_data/Chase_db1/model-r2unet-coe-0-time-20220517-2-best_dice-0.8106670379638672.pth'
+Model_path = 'experimental_data/Chase_db1/model-saunet64-coe-1e-06-time-20220621-200722-best_dice-0.8326610922813416.pth'
 Manual = 'manual2'
 
 
@@ -57,6 +57,8 @@ def create_model(args):
         return R2AttU_Net(output_ch=args.num_classes + 1)
     elif args.back_bone == 'saunet':
         return SA_Unet(base_size=16)
+    elif args.back_bone == 'saunet64':
+        return SA_Unet(base_size=64)
     elif args.back_bone == 'attunetplus':
         return AttU_Net_Plus(output_ch=args.num_classes + 1, sa=True)
 
@@ -243,6 +245,7 @@ if __name__ == '__main__':
 
     # 当显存不够时使用
     # args.device = 'cpu'
+    os.environ["OMP_NUM_THREADS"] = '1'
     if args.device == 'cuda':
         # use which GPU and initial
         os.environ["CUDA_VISIBLE_DEVICES"] = args.which_gpu

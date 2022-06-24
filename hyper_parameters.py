@@ -27,9 +27,9 @@ In this part , all the hyper parameters are listed here.
 # which gpu to use, 0 default. Multi-gpu is not supported in this project.
 Which_GPU = "0"
 # which dataset to use
-Data_Name = "DRIVE"
+Data_Name = "Chase_db1"
 # which backbone to use
-Back_Bone = 'attunet'
+Back_Bone = 'attunetplus'
 # FCN use Aux.
 Aux = True if Back_Bone == "fcn" else False
 # learning rate initially, it will decrease when training
@@ -37,7 +37,7 @@ Initial_Learning_Rate = 0.01
 # batchsize
 Batch_Size = 2
 # epoch number
-Epoch = 200
+Epoch = 300
 # use when debugging, it's to print messages on the console
 Print_Frequency = 1
 # device
@@ -47,7 +47,7 @@ Cuda_Amp = False
 # 是否使用Dice损失
 Dice = "dice"
 # 0代表不使用水平集损失
-Level_Set_Coe = 0
+Level_Set_Coe = 0.000001
 # loss weight
 Loss_Weight = [1.0, 2.0]
 
@@ -90,8 +90,8 @@ elif Data_Name == "DRIVE":
     if platform.system() == "Windows":
         Data_Path = "E:/Datasets/"
     else:
-        # Data_Path = "/Data20T/data20t/data20t/Liuyifei/Datasets"
-        Data_Path = "/root/autodl-tmp"
+        Data_Path = "/Data20T/data20t/data20t/Liuyifei/Datasets"
+        # Data_Path = "/root/autodl-tmp"
     Data_Root = Data_Path
     Class_Num = 1
 elif Data_Name == 'Chase_db1':
@@ -99,8 +99,8 @@ elif Data_Name == 'Chase_db1':
     if platform.system() == "Windows":
         Data_Path = "E:/Datasets/"
     else:
-        # Data_Path = "/Data20T/data20t/data20t/Liuyifei/Datasets"
-        Data_Path = "/root/autodl-tmp"
+        Data_Path = "/Data20T/data20t/data20t/Liuyifei/Datasets"
+        # Data_Path = "/root/autodl-tmp"
 
     Data_Root = Data_Path
     Class_Num = 1
