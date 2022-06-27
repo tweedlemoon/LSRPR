@@ -14,7 +14,7 @@ from utils.timer import Timer
 from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 
-Model_path = 'experimental_data/Chase_db1/model-saunet64-coe-1e-06-time-20220621-200722-best_dice-0.8326610922813416.pth'
+Model_path = 'experimental_data/DRIVE/model-unet-coe-5e-6-best_dice-0.821.pth'
 Manual = 'manual2'
 
 
@@ -38,7 +38,7 @@ def parse_arguments():
 
     parser.add_argument('--show', default='no', type=str, choices=['yes', 'no'],
                         help='Whether to output the result one by one.')
-    parser.add_argument('--visualization', '-v', default='all', type=str, choices=['all', 'none'],
+    parser.add_argument('--visualization', '-v', default='none', type=str, choices=['all', 'none'],
                         help='Whether to generate all the result of the network.')
     parser.add_argument('--is_mine', default='origin', type=str, choices=['origin', 'mine'],
                         help='If the model has levelset function.')
@@ -104,10 +104,12 @@ def compute_index(args):
             # 进行argmax操作
             argmax_output = net_output.argmax(1)
 
-            matrix.update(ground_truth, argmax_output)
+            # 1-的意思是，正例给血管
+            matrix.update(1 - ground_truth, 1 - argmax_output)
             matrix.prf_compute()
             all_accuracy += matrix.accuracy
-            all_f1_score += matrix.f1_score
+            # 这里是二分类，定义血管白色为正例，所以precision和recall都是第一个，从而F1score也是第一个，故带下标0
+            all_f1_score += matrix.f1_score[0]
             all_miou += matrix.miou
             matrix.reset()
 
@@ -238,7 +240,8 @@ if __name__ == '__main__':
     args = parse_arguments()
     args.back_bone = args.model_path.split('/')[-1:][0].split('-')[1]
     args.dataset = args.model_path.split('/')[-2:][0]
-    if args.model_path.split('/')[-1:][0].split('-')[3] == '0' or args.model_path.split('/')[-1:][0].split('-')[3] == '0.0':
+    if args.model_path.split('/')[-1:][0].split('-')[3] == '0' or \
+            args.model_path.split('/')[-1:][0].split('-')[3] == '0.0':
         args.is_mine = 'origin'
     else:
         args.is_mine = 'mine'

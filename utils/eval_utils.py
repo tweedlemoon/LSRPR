@@ -92,13 +92,13 @@ class ConfusionMatrix(object):
         h = self.mat.float()
         # 正确率为总预测对的（对角线）除以总像素点数量
         self.accuracy = torch.diag(h).sum() / h.sum()
-        # 查准率为主对角线上的值除以该值所在列的和
-        self.precision = (torch.diag(h) / h.sum(0)).sum() / self.num_classes
-        # 召回率等于主对角线上的值除以该值所在行的和
-        self.recall = (torch.diag(h) / h.sum(1)).sum() / self.num_classes
-        # f1score按公式来
-        self.f1_score = (2 * self.precision * self.recall) / (self.precision + self.recall)
-        # miou也按照公式来
+        # 查准率为主对角线上的值除以该值所在列的和（n类就有n个值）
+        self.precision = (torch.diag(h) / h.sum(0))
+        # 召回率等于主对角线上的值除以该值所在行的和（n类就有n个值）
+        self.recall = (torch.diag(h) / h.sum(1))
+        # f1score按公式来（n类就有n个值）
+        self.f1_score = torch.div((2 * torch.mul(self.precision, self.recall)), (self.precision + self.recall))
+        # miou也按照公式来（这里是直接算最后的miou而不是每一类再除）
         self.miou = (torch.diag(h) / (h.sum(1) + h.sum(0) - torch.diag(h))).sum() / self.num_classes
 
     def compute(self):
