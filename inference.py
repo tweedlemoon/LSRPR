@@ -13,6 +13,7 @@ from utils.eval_utils import ConfusionMatrix
 from utils.timer import Timer
 from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
+from utils.color_palette import generate_color_img
 
 Model_path = 'experimental_data/DRIVE/model-unet-coe-5e-6-best_dice-0.821.pth'
 Manual = 'manual2'
@@ -36,7 +37,7 @@ def parse_arguments():
     parser.add_argument("--manual", default=Manual, type=str, choices=['manual1', 'manual2'],
                         help='Use which manual to inference.')
 
-    parser.add_argument('--show', default='no', type=str, choices=['yes', 'no'],
+    parser.add_argument('--show', default='yes', type=str, choices=['yes', 'no'],
                         help='Whether to output the result one by one.')
     parser.add_argument('--visualization', '-v', default='none', type=str, choices=['all', 'none'],
                         help='Whether to generate all the result of the network.')
@@ -180,10 +181,16 @@ def run_inference(args):
                 roi_img = np.array(roi_img)
                 np_argmax_output[roi_img == 0] = 0
 
+                # 生成带颜色的图片
+                color_img = generate_color_img(
+                    ground_truth=transforms.ToTensor()(ground_truth.convert('1')).to(torch.int64),
+                    prediction=argmax_output.cpu())
+
                 if args.show == 'yes':
                     triple_img_show(original_img=format_convert(original_img),
                                     original_mask=format_convert(ground_truth),
                                     predicted_img=format_convert(np_argmax_output))
+                    img_show(img=color_img)
 
                 if args.visualization == 'all':
                     parent_dir = os.path.join('predict_pic', args.back_bone + '_' + args.is_mine + '_' + args.dataset)
