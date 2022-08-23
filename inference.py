@@ -15,7 +15,7 @@ from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 from utils.color_palette import generate_color_img
 
-Model_path = 'experimental_data/DRIVE/model-unet-coe-5e-6-best_dice-0.821.pth'
+Model_path = 'experimental_data/DRIVE/model-attunet-coe-1e-06-time-20220523-1-best_dice-0.8230832815170288.pth'
 Manual = 'manual2'
 
 
@@ -37,9 +37,9 @@ def parse_arguments():
     parser.add_argument("--manual", default=Manual, type=str, choices=['manual1', 'manual2'],
                         help='Use which manual to inference.')
 
-    parser.add_argument('--show', default='yes', type=str, choices=['yes', 'no'],
+    parser.add_argument('--show', default='no', type=str, choices=['yes', 'no'],
                         help='Whether to output the result one by one.')
-    parser.add_argument('--visualization', '-v', default='none', type=str, choices=['all', 'none'],
+    parser.add_argument('--visualization', '-v', default='all', type=str, choices=['all', 'none'],
                         help='Whether to generate all the result of the network.')
     parser.add_argument('--is_mine', default='origin', type=str, choices=['origin', 'mine'],
                         help='If the model has levelset function.')
@@ -199,7 +199,12 @@ def run_inference(args):
                     this_img = os.path.basename(loader.dataset.img_list[idx])
                     this_img = this_img.split('.')[0]
                     save_img_name = os.path.join(parent_dir, this_img + '_' + args.back_bone + '_prediciton' + '.png')
+                    save_img_name_color = os.path.join(parent_dir,
+                                                       this_img + '_' + args.back_bone + '_prediciton_color' + '.png')
                     predicted_img.save(save_img_name)
+                    color_img.save(save_img_name_color)
+                    print('Have saved ' + save_img_name)
+                    print('Have saved ' + save_img_name_color)
                 print('Done ' + '[' + str(idx + 1) + '/' + str(loader.dataset.__len__()) + ']')
 
     elif args.dataset == 'Chase_db1':
@@ -223,10 +228,17 @@ def run_inference(args):
                 np_argmax_output = np_argmax_output.astype(np.uint8).squeeze(0) * 255
                 # val_range("Numpy argmax output", np_argmax_output)
 
+                # 生成带颜色的图片
+                color_img = generate_color_img(
+                    ground_truth=transforms.ToTensor()(ground_truth.convert('1')).to(torch.int64),
+                    prediction=argmax_output.cpu())
+
                 if args.show == 'yes':
                     triple_img_show(original_img=format_convert(original_img),
                                     original_mask=format_convert(ground_truth),
                                     predicted_img=format_convert(np_argmax_output))
+                    img_show(img=color_img)
+
                 if args.visualization == 'all':
                     parent_dir = os.path.join('predict_pic', args.back_bone + '_' + args.is_mine + '_' + args.dataset)
                     generate_path(parent_dir)
@@ -234,7 +246,12 @@ def run_inference(args):
                     this_img = os.path.basename(loader.dataset.img_list[idx])
                     this_img = this_img.split('.')[0]
                     save_img_name = os.path.join(parent_dir, this_img + '_' + args.back_bone + '_prediciton' + '.png')
+                    save_img_name_color = os.path.join(parent_dir,
+                                                       this_img + '_' + args.back_bone + '_prediciton_color' + '.png')
                     predicted_img.save(save_img_name)
+                    color_img.save(save_img_name_color)
+                    print('Have saved ' + save_img_name)
+                    print('Have saved ' + save_img_name_color)
                 print('Done ' + '[' + str(idx + 1) + '/' + str(loader.dataset.__len__()) + ']')
 
 
@@ -254,7 +271,7 @@ if __name__ == '__main__':
         args.is_mine = 'mine'
 
     # 当显存不够时使用
-    # args.device = 'cpu'
+    args.device = 'cpu'
     os.environ["OMP_NUM_THREADS"] = '1'
     if args.device == 'cuda':
         # use which GPU and initial

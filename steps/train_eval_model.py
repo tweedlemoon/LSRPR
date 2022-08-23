@@ -3,7 +3,7 @@ import os
 
 import torch
 
-from src.loss import criterion
+from src.loss import criterion, criterion_supervised
 from steps.make_data import MakeData
 from steps.make_net import MakeNet
 from utils.eval_utils import ConfusionMatrix, DiceCoefficient
@@ -111,9 +111,12 @@ def train_one_epoch(args, model, optimizer, data_loader, device, epoch, num_clas
         image, target = image.to(device), target.to(device)
         with torch.cuda.amp.autocast(enabled=scaler is not None):
             output = model(image)
-            # 老版本loss
-            # loss = criterion(output, target, loss_weight, num_classes=num_classes, ignore_index=255)
-            losses = criterion(output, target, loss_weight, num_classes=num_classes, ignore_index=255)
+            if args.step == 1:
+                losses = criterion(output, target, loss_weight, num_classes=num_classes, ignore_index=255)
+            elif args.step == 2:
+                losses = criterion_supervised(output, target, loss_weight, num_classes=num_classes, ignore_index=255)
+            else:
+                raise ValueError('Step param error.')
             # the coefficient of level_set_loss
             level_set_coe = args.level_set_coe
             loss = losses["ce_loss"] + losses["dice_loss"] + level_set_coe * losses["level_set_loss"]

@@ -43,24 +43,37 @@ def criterion(inputs, target, loss_weight=None, num_classes: int = 2, dice: bool
     return losses
 
 
-class LevelSetLoss(nn.Module):
-    def __init__(self):
-        super(LevelSetLoss, self).__init__()
+def criterion_supervised(inputs, target, loss_weight=None, num_classes: int = 2, dice: bool = True,
+                         ignore_index: int = -100):
+    losses = {}
+    x = inputs["out"]
+    target = torch.where(target == 255, 0, target)
+    losses["ce_loss"] = functional.cross_entropy(x, target, weight=loss_weight)
+    losses["level_set_loss"] = level_set_loss_compute_supervised(inputs, target)
+    if dice is True:
+        dice_target = build_target(target, num_classes, ignore_index)
+        losses["dice_loss"] = dice_loss(x, dice_target, multiclass=True, ignore_index=ignore_index)
+    return losses
 
-    def forward(self, measurement, softmax_output):
-        # input size = batch x channel x height x width
-        outshape = softmax_output.shape
-        tarshape = measurement.shape
-        loss = 0.0
-        for ich in range(tarshape[1]):
-            target_ = torch.unsqueeze(measurement[:, ich], 1)
-            target_ = target_.expand(tarshape[0], outshape[1], tarshape[2], tarshape[3])
-            pcentroid = torch.sum(target_ * softmax_output, (2, 3)) / torch.sum(softmax_output, (2, 3))
-            pcentroid = pcentroid.view(tarshape[0], outshape[1], 1, 1)
-            plevel = target_ - pcentroid.expand(tarshape[0], outshape[1], tarshape[2], tarshape[3])
-            pLoss = plevel * plevel * softmax_output
-            loss += torch.sum(pLoss)
-        return loss
+
+# class LevelSetLoss(nn.Module):
+#     def __init__(self):
+#         super(LevelSetLoss, self).__init__()
+#
+#     def forward(self, measurement, softmax_output):
+#         # input size = batch x channel x height x width
+#         outshape = softmax_output.shape
+#         tarshape = measurement.shape
+#         loss = 0.0
+#         for ich in range(tarshape[1]):
+#             target_ = torch.unsqueeze(measurement[:, ich], 1)
+#             target_ = target_.expand(tarshape[0], outshape[1], tarshape[2], tarshape[3])
+#             pcentroid = torch.sum(target_ * softmax_output, (2, 3)) / torch.sum(softmax_output, (2, 3))
+#             pcentroid = pcentroid.view(tarshape[0], outshape[1], 1, 1)
+#             plevel = target_ - pcentroid.expand(tarshape[0], outshape[1], tarshape[2], tarshape[3])
+#             pLoss = plevel * plevel * softmax_output
+#             loss += torch.sum(pLoss)
+#         return loss
 
 
 class GradientLoss2d(nn.Module):
@@ -114,6 +127,52 @@ def level_set_loss_compute(net_output: dict):
 
     # # 这里加了groundtruth，在groundtruth的限定下，前景逼近前景，背景逼近背景
     # pcentroid = torch.sum(measurement_multi_channel * target, (2, 3)) / torch.sum(target, (2, 3))
+
+    pcentroid = pcentroid.view(softmax_output.shape[0], softmax_output.shape[1], 1, 1)
+    plevel = measurement_multi_channel - pcentroid.expand(softmax_output.shape[0], softmax_output.shape[1],
+                                                          softmax_output.shape[2], softmax_output.shape[3])
+    pLoss = plevel * plevel * softmax_output
+    loss = loss + torch.sum(pLoss)
+    # loss.backward()
+    return loss
+
+
+def level_set_loss_compute_supervised(net_output: dict, target: torch.Tensor):
+    """
+    返回水平集损失（有监督）
+    :param net_output:  batch * class * height * weight
+    :return: tensor, loss value
+    :param target: ground truth
+    :return:
+    """
+
+    # # 对target进行处理
+    # target = torch.unsqueeze(target, 1)
+    # target_back = 1 - target
+    # target = torch.cat([target, target_back], dim=1)
+
+    softmaxed = net_output["out"].softmax(1)
+    argmaxed = net_output["out"].argmax(1)
+    # 将channel0维也就是背景全部设置为负
+    back_ground = -softmaxed[:, 0, :, :]
+    fore = softmaxed[:, 1:, :, :]
+    fore_ground = torch.sum(fore, dim=(1,), keepdim=True)
+    fore_ground = fore_ground.squeeze(1)
+
+    # 两者得到，开始计算水平集损失
+    measurement = torch.where(argmaxed == 0, back_ground, fore_ground)
+    softmax_output = net_output["out"].softmax(1)
+
+    loss = 0.0
+
+    measurement_multi_channel = torch.unsqueeze(measurement, 1)
+    measurement_multi_channel = measurement_multi_channel.expand(softmax_output.shape[0], softmax_output.shape[1],
+                                                                 softmax_output.shape[2], softmax_output.shape[3])
+    # 这里是自监督，预测的前景和背景靠近自身
+    # pcentroid = torch.sum(measurement_multi_channel * softmax_output, (2, 3)) / torch.sum(softmax_output, (2, 3))
+
+    # 这里加了groundtruth，在groundtruth的限定下，前景逼近前景，背景逼近背景
+    pcentroid = torch.sum(measurement_multi_channel * target, (2, 3)) / torch.sum(target, (2, 3))
 
     pcentroid = pcentroid.view(softmax_output.shape[0], softmax_output.shape[1], 1, 1)
     plevel = measurement_multi_channel - pcentroid.expand(softmax_output.shape[0], softmax_output.shape[1],
