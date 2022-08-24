@@ -15,7 +15,7 @@ from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 from utils.color_palette import generate_color_img
 
-Model_path = 'experimental_data/DRIVE/model-attunet-coe-1e-06-time-20220523-1-best_dice-0.8230832815170288.pth'
+Model_path = 'experimental_data/DRIVE/model-unet-coe-0-author.pth'
 Manual = 'manual2'
 
 

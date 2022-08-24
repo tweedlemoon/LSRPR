@@ -16,7 +16,7 @@ from utils.handy_functions import img_show, val_range
 VESSEL_PALETTE = np.asarray(
     [
         # 黑
-        [255, 255, 255],
+        [0, 0, 0],
         # 蓝
         [0, 0, 255],
         # 红
