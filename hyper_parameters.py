@@ -35,7 +35,8 @@ Aux = True if Back_Bone == "fcn" else False
 # Step
 # step1:unsupervised learning
 # step2:supervised learning
-Step = 1
+# Step = 1
+Step = 2
 # learning rate initially, it will decrease when training
 Initial_Learning_Rate = 0.01
 # batchsize
@@ -57,7 +58,8 @@ Loss_Weight = [1.0, 2.0]
 
 # pretrained?
 # 如果加载pretrained模型，这里直接填写模型的pth文件路径
-Pretrained = ""
+# Pretrained = ''
+Pretrained = "experimental_data/DRIVE/model-unet-coe-5e-6-best_dice-0.821.pth"
 if Step == 2 and Pretrained == '':
     raise ValueError('When do step 2, pretrained should not be empty.')
 # resume?

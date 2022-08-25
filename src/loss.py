@@ -172,12 +172,14 @@ def level_set_loss_compute_supervised(net_output: dict, target: torch.Tensor):
     # pcentroid = torch.sum(measurement_multi_channel * softmax_output, (2, 3)) / torch.sum(softmax_output, (2, 3))
 
     # 这里加了groundtruth，在groundtruth的限定下，前景逼近前景，背景逼近背景
+    target = target.unsqueeze(dim=1)
+    target = torch.cat([1 - target, target], dim=1)
     pcentroid = torch.sum(measurement_multi_channel * target, (2, 3)) / torch.sum(target, (2, 3))
 
     pcentroid = pcentroid.view(softmax_output.shape[0], softmax_output.shape[1], 1, 1)
     plevel = measurement_multi_channel - pcentroid.expand(softmax_output.shape[0], softmax_output.shape[1],
                                                           softmax_output.shape[2], softmax_output.shape[3])
-    pLoss = plevel * plevel * softmax_output
+    pLoss = plevel * plevel * target
     loss = loss + torch.sum(pLoss)
     # loss.backward()
     return loss
