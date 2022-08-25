@@ -4,9 +4,9 @@
 
 | Image                    | Ground Truth                | Unet                       | Unet+Ours                     | Att-Unet                      | Att-Unet+Ours                    |
 | ------------------------ | ------------------------ | ------------------------ | ------------------------ | ------------------------ | ------------------------ |
-| ![](figures/16_test.png) | ![](figures/16_manual2.gif) | ![](figures/16_unet_0.png) | ![](figures/16_unet_5e-6.png) | ![](figures/16_attunet_0.png) | ![](figures/16_attunet_1e-6.png) |
-| ![](figures/11_test.png) | ![](figures/11_manual2.gif) | ![](figures/11_unet_0.png) | ![](figures/11_unet_5e-6.png) | ![](figures/11_attunet_0.png) | ![](figures/11_attunet_1e-6.png) |
-| ![](figures/Image_08L.jpg) | ![](figures/Image_08L_1stHO.png) | ![](figures/Image_08L_unet_prediciton.png) | ![](figures/Image_08L_unet_mine_prediciton.png) | ![](figures/Image_08L_attunet_prediciton.png) | ![](figures/Image_08L_attunet_mine_prediciton.png) |
+| ![](figures/Image/16_test.png) | ![](figures/gt/16_manual2.gif) | ![](figures/unet_origin_DRIVE/16_test_unet_prediciton_color.png) | ![](figures/unet_mine_DRIVE/16_test_unet_prediciton_color.png) | ![](figures/attunet_origin_DRIVE/16_test_attunet_prediciton_color.png) | ![](figures/attunet_mine_DRIVE/16_test_attunet_prediciton_color.png) |
+| ![](figures/Image/11_test.png) | ![](figures/gt/11_manual2.gif) | ![](figures/unet_origin_DRIVE/11_test_unet_prediciton_color.png.png) | ![](figures/unet_mine_DRIVE/11_test_unet_prediciton_color.png) | ![](figures/attunet_origin_DRIVE/11_test_attunet_prediciton_color.png) | ![](figures/attunet_mine_DRIVE/11_test_attunet_prediciton_color.png) |
+| ![](figures/Image/Image_08L.jpg) | ![](figures/gt/Image_08L_1stHO.png) | ![](figures/unet_origin_Chase_db1/Image_08L_unet_prediciton_color.png) | ![](figures/unet_mine_Chase_db1/Image_08L_unet_prediciton_color.png) | ![](figures/attunet_origin_Chase_db1/Image_08L_attunet_prediciton_color.png) | ![](figures/attunet_mine_Chase_db1/Image_08L_attunet_prediciton_color.png) |
 
 
 
@@ -49,23 +49,23 @@ This table shows the greatest results I've gotten so far using my training strat
 | Dataset   | Method                     | Accuracy/F1 score/mIoU                    | Checkpoint     | Log            |
 | --------- | -------------------------- | ----------------------------------------- | -------------- | -------------- |
 | DRIVE     | Unet (2015)                | 0.9283/0.7561/0.6518                      | coming soon... | coming soon... |
-| DRIVE     | Unet+Ours                  | 0.9688(↑)/0.9032(↑)/0.8323(↑)             |                |                |
-| DRIVE     | R2-Unet (2018)             | 0.9711/0.9071/0.8384                      |                |                |
-| DRIVE     | R2-Unet+Ours               | 0.9708(↓)/0.9075(↑)/0.8389(↑)             |                |                |
-| DRIVE     | Att-Unet (2018)            | 0.9687/0.9024/0.8310                      |                |                |
-| DRIVE     | Att-Unet+Ours              | **0.9731(↑)**/**0.9148(↑)**/**0.8499(↑)** |                |                |
-| DRIVE     | R2Att-Unet (2018)          | 0.9700/0.9011/0.8290                      |                |                |
-| DRIVE     | R2Att-Unet+Ours            | 0.9623(↓)/0.8718(↓)/0.7813(↓)             |                |                |
-| DRIVE     | SA-UNet(lightweight)(2021) | 0.9697/0.9047/0.8343                      |                |                |
-| DRIVE     | SA-UNet(lightweight)+Ours  | 0.9714(↑)/0.9099(↑)/0.8423(↑)             |                |                |
-| Chase_db1 | Unet (2015)                | 0.9720/0.8929/0.8175                      |                |                |
-| Chase_db1 | Unet+Ours                  | 0.9724(↑)/0.8941(↑)/0.8190(↑)             |                |                |
-| Chase_db1 | Att-Unet (2018)            | 0.9720/0.8936/0.8182                      |                |                |
-| Chase_db1 | Att-Unet+Ours              | **0.9724(↑)**/**0.8941**(↑)/**0.8190(↑)** |                |                |
-| Chase_db1 | SA-UNet(lightweight)(2021) | 0.9700/0.8863/0.8080                      |                |                |
-| Chase_db1 | SA-UNet(lightweight)+Ours  | 0.9704(↑)/0.8894(↑)/0.8120(↑)             |                |                |
-| Chase_db1 | SA-UNet(complex)           | 0.9715/0.8923/0.8165                      |                |                |
-| Chase_db1 | SA-UNet(complex)+Ours      | 0.9717(↑)/0.8934(↑)/0.8179(↑)             |                |                |
+| DRIVE     | Unet+Ours                  | 0.9688(↑)/0.8422(↑)/0.8323(↑)             |                |                |
+| DRIVE     | R2-Unet (2018)             | 0.9711/0.8266/0.8384                      |                |                |
+| DRIVE     | R2-Unet+Ours               | 0.9708(↓)/0.8295(↑)/0.8389(↑)             |                |                |
+| DRIVE     | Att-Unet (2018)            | 0.9687/0.8420/0.8310                      |                |                |
+| DRIVE     | Att-Unet+Ours              | **0.9731(↑)**/**0.8430(↑)**/**0.8499(↑)** |                |                |
+| DRIVE     | R2Att-Unet (2018)          | 0.9700/0.8161/0.8290                      |                |                |
+| DRIVE     | R2Att-Unet+Ours            | 0.9623(↓)/0.7488(↓)/0.7813(↓)             |                |                |
+| DRIVE     | SA-UNet(lightweight)(2021) | 0.9697/0.8241/0.8343                      |                |                |
+| DRIVE     | SA-UNet(lightweight)+Ours  | 0.9714(↑)/0.8339(↑)/0.8423(↑)             |                |                |
+| Chase_db1 | Unet (2015)                | 0.9720/0.7980/0.8175                      |                |                |
+| Chase_db1 | Unet+Ours                  | 0.9724(↑)/**0.8002(↑)**/0.8190(↑)             |                |                |
+| Chase_db1 | Att-Unet (2018)            | 0.9720/0.7990/0.8182                      |                |                |
+| Chase_db1 | Att-Unet+Ours              | **0.9724(↑)**/0.8000(↑)/**0.8190(↑)** |                |                |
+| Chase_db1 | SA-UNet(lightweight)(2021) | 0.9700/0.7857/0.8080                      |                |                |
+| Chase_db1 | SA-UNet(lightweight)+Ours  | 0.9704(↑)/0.7912(↑)/0.8120(↑)             |                |                |
+| Chase_db1 | SA-UNet(complex)           | 0.9715/0.7971/0.8165                      |                |                |
+| Chase_db1 | SA-UNet(complex)+Ours      | 0.9717(↑)/0.7989(↑)/0.8179(↑)             |                |                |
 
 
 

@@ -15,7 +15,7 @@ from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 from utils.color_palette import generate_color_img
 
-Model_path = 'experimental_data/DRIVE/model-unet-coe-0-author.pth'
+Model_path = 'experimental_data/Chase_db1/model-saunet64-coe-1e-06-time-20220621-200722-best_dice-0.8326610922813416.pth'
 Manual = 'manual2'
 
 
@@ -271,7 +271,7 @@ if __name__ == '__main__':
         args.is_mine = 'mine'
 
     # 当显存不够时使用
-    args.device = 'cpu'
+    # args.device = 'cpu'
     os.environ["OMP_NUM_THREADS"] = '1'
     if args.device == 'cuda':
         # use which GPU and initial
