@@ -53,7 +53,7 @@ This table shows the greatest results I've gotten so far using my training strat
 | DRIVE     | R2-Unet (2018)             | 0.9711/0.8266/0.8384                      |                |                |
 | DRIVE     | R2-Unet+Ours               | 0.9708(↓)/0.8295(↑)/0.8389(↑)             |                |                |
 | DRIVE     | Att-Unet (2018)            | 0.9687/0.8420/0.8310                      |                |                |
-| DRIVE     | Att-Unet+Ours              | **0.9731(↑)**/**0.8430(↑)**/**0.8499(↑)** |                |                |
+| DRIVE     | Att-Unet+Ours              | **0.9735(↑)**/**0.8430(↑)**/**0.8502(↑)** |                |                |
 | DRIVE     | R2Att-Unet (2018)          | 0.9700/0.8161/0.8290                      |                |                |
 | DRIVE     | R2Att-Unet+Ours            | 0.9623(↓)/0.7488(↓)/0.7813(↓)             |                |                |
 | DRIVE     | SA-UNet(lightweight)(2021) | 0.9697/0.8241/0.8343                      |                |                |

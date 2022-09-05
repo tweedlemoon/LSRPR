@@ -15,7 +15,7 @@ from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 from utils.color_palette import generate_color_img
 
-Model_path = 'experimental_data/Chase_db1/model-saunet64-coe-1e-06-time-20220621-200722-best_dice-0.8326610922813416.pth'
+Model_path = ''
 Manual = 'manual2'
 
 
@@ -262,6 +262,8 @@ def generate_path(path):
 
 if __name__ == '__main__':
     args = parse_arguments()
+    if not os.path.exists(args.model_path):
+        raise ValueError('model path does not exist!')
     args.back_bone = args.model_path.split('/')[-1:][0].split('-')[1]
     args.dataset = args.model_path.split('/')[-2:][0]
     if args.model_path.split('/')[-1:][0].split('-')[3] == '0' or \
