@@ -128,8 +128,8 @@ def compute_index(args):
 
 def run_inference(args):
     device = args.device
-    mean = (0.709, 0.381, 0.224)
-    std = (0.127, 0.079, 0.043)
+    mean = (0.485, 0.456, 0.406)
+    std = (0.229, 0.224, 0.225)
 
     # load model
     # model = create_unet_model(num_classes=args.num_classes + 1).to(device)

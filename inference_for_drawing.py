@@ -10,6 +10,7 @@ from models.sa_unet import SA_Unet
 from models.attunetplus import AttU_Net_Plus
 import PIL
 from torchvision import transforms
+from utils.fig_drawing_3d import generate_3d_fig
 
 from utils.eval_utils import ConfusionMatrix
 from utils.timer import Timer
@@ -17,12 +18,15 @@ from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 from utils.color_palette import generate_color_img
 
-Model_path = ''
-Input_pic = ''
+Model_path = 'experimental_data/DRIVE/model-attunet-coe-0-time-20220517-1-best_dice-0.8204290270805359.pth'
+Input_pic = 'E:/Datasets/DRIVE/test/images/01_test.tif'
 
+x1 = 494
+x2 = 522
+y1 = 361
+y2 = 389
+side_lenth = x2 - x1
 
-# 494,361
-# 522,389
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Do one prediction.')
@@ -65,10 +69,36 @@ def predict_one_pic(args):
     device = args.device
     model = create_model(args=args).to(device)
 
+    # from pil image to tensor and normalize
+    mean = (0.485, 0.456, 0.406)
+    std = (0.229, 0.224, 0.225)
+    data_transform = transforms.Compose([transforms.ToTensor(),
+                                         transforms.Normalize(mean=mean, std=std)])
+    img = data_transform(img)
+    img = img.unsqueeze(0)
+
     pth = torch.load(args.model_path, map_location=device)
     model.load_state_dict(pth['model'])
-    net_output = model(img)['out']
+
+    model.eval()  # 进入验证模式
+    with torch.no_grad():
+        net_output = model(img)['out']
     val_range('net output', net_output)
+    argmaxed = net_output.argmax(1)
+    back = -net_output[:, 0, :, :]
+    fore = net_output[:, 1, :, :]
+    measurement = torch.where(argmaxed == 0, back, fore)
+    measurement = measurement.squeeze(0)
+    measurement = measurement.squeeze(0)
+    z_label = measurement[y1:y2, x1:x2]
+    z_label = z_label.numpy()
+    test = argmaxed.squeeze(0)[y1:y2, x1:x2]
+
+    # argmaxed = argmaxed.to("cpu")
+    # argmaxed[argmaxed == 1] = 255
+    # result = format_convert(argmaxed)
+    # img_show(result)
+    return z_label
 
 
 def generate_path(path):
@@ -89,10 +119,11 @@ if __name__ == '__main__':
         args.is_mine = 'mine'
 
     # 当显存不够时使用
-    # args.device = 'cpu'
+    args.device = 'cpu'
     os.environ["OMP_NUM_THREADS"] = '1'
     if args.device == 'cuda':
         # use which GPU and initial
         os.environ["CUDA_VISIBLE_DEVICES"] = args.which_gpu
 
-    predict_one_pic(args=args)
+    z_label = predict_one_pic(args=args)
+    generate_3d_fig(side_lenth=side_lenth, z=z_label)
