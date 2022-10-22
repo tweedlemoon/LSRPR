@@ -81,6 +81,31 @@ class RandomResize(object):
         return image, target
 
 
+class Resize(object):
+    def __init__(self, size):
+        """
+        初始化：
+        """
+        self.size = size
+
+    def __call__(self, image, target):
+        """
+        :param image:tensor 将一个image重新定形（成一个正方形图片）resize
+        :param target:tensor 将一个mask重新定形
+        :return: tuple 图像目标对
+        将一组输入-目标按照生成的随机数进行放大或缩小，但图片的长宽比不变，随机的范围由上述max_size和min_size界定
+        """
+        size = self.size
+        # 调试时候打印一下出来的size是多少，之后这行注释掉
+        # print('The radom size is:' + str(size))
+        # 这里size传入的是int类型，所以是将图像的最小边长缩放到size大小
+        image = F.resize(image, size)
+        # 这里的interpolation注意下，在torchvision(0.9.0)以后才有InterpolationMode.NEAREST
+        # 如果是之前的版本需要使用PIL.Image.NEAREST
+        target = F.resize(target, size, interpolation=T.InterpolationMode.NEAREST)
+        return image, target
+
+
 class RandomHorizontalFlip(object):
     def __init__(self, flip_prob):
         """
@@ -168,14 +193,19 @@ if __name__ == "__main__":
     # 调试代码使用
     # 图片路径
     # pic_path = "../test_picture"
-    pic_path = "E:\\Datasets\\CHASE_DB1"
+    # pic_path = "E:\\Datasets\\CHASE_DB1"
+    pic_path = "E:\\Datasets\\ISIC2018\\ISIC2018_Task1-2_Training_Input"
     # 图片候选，用哪个去掉注释即可
-    input_pic_name = "Image_01L.jpg"
+    # input_pic_name = "Image_01L.jpg"
+    input_pic_name = "ISIC_0000080.jpg"
     # pic_name = "01_test.tif"
     # pic_name = "ILSVRC2012_test_00000038.png"
     input_pic_path = os.path.join(pic_path, input_pic_name)
-    target_pic_name = "Image_01L_1stHO.png"
-    target_pic_path = os.path.join(pic_path, target_pic_name)
+    # target_pic_name = "Image_01L_1stHO.png"
+    target_pic_name = "ISIC_0000080_segmentation.png"
+    # target_pic_path = os.path.join(pic_path, target_pic_name)
+    pic_path2 = "E:\\Datasets\\ISIC2018\\ISIC2018_Task1_Training_GroundTruth"
+    target_pic_path = os.path.join(pic_path2, target_pic_name)
 
     # # 使用CV2测试一下输出
     # # flags 1是rgb图 0是灰度图 -1是原图
@@ -201,7 +231,8 @@ if __name__ == "__main__":
                       "2:RandomHorizontalFlip\n"
                       "3:RandomCrop\n"
                       "4:CenterCrop\n"
-                      "5:ToTensor&Normalize"
+                      "5:ToTensor&Normalize\n"
+                      "6:Resize"
                       ":"))
     input_pic = Image.open(input_pic_path)
     target_pic = Image.open(target_pic_path)
@@ -209,9 +240,9 @@ if __name__ == "__main__":
     if judge == 1:
         # 测试RandomResize，注意此处F.resize必须要PIL类的图片
         # 开始随机resize
-        base_size = 960
+        size = 960
         print("Before random,\ninput picture size:", input_pic.size, "\ntarget picture size:", target_pic.size)
-        input_pic, target_pic = RandomResize(int(0.5 * base_size), int(1.2 * base_size))(input_pic, target_pic)
+        input_pic, target_pic = RandomResize(int(0.5 * size), int(1.2 * size))(input_pic, target_pic)
         print("After random,\ninput picture size:", input_pic.size, "\ntarget picture size:", target_pic.size)
     elif judge == 2:
         # 测试RandomHorizontalFlip
@@ -219,15 +250,15 @@ if __name__ == "__main__":
         input_pic, target_pic = RandomHorizontalFlip(1)(input_pic, target_pic)
     elif judge == 3:
         # 测试RandomCrop
-        base_size = 1200
+        size = 1200
         print("Do random crop...")
-        input_pic, target_pic = RandomCrop(base_size)(input_pic, target_pic)
+        input_pic, target_pic = RandomCrop(size)(input_pic, target_pic)
         print("After random,\ninput picture size:", input_pic.size, "\ntarget picture size:", target_pic.size)
     elif judge == 4:
         # 测试CenterCrop
-        base_size = 1200
+        size = 1200
         print("Do center crop...")
-        input_pic, target_pic = CenterCrop(base_size)(input_pic, target_pic)
+        input_pic, target_pic = CenterCrop(size)(input_pic, target_pic)
         print("After center,\ninput picture size:", input_pic.size, "\ntarget picture size:", target_pic.size)
     elif judge == 5:
         # 测试ToTensor和Normalize
@@ -248,6 +279,13 @@ if __name__ == "__main__":
         # ToTensor是H*W*C的numpy转成tensor，如果是PIL进去或者满足np.uint8进去则是正常的C*H*W
         # input_pic, = T.ToPILImage()(input_pic)
         # target_pic = T.ToPILImage()(target_pic)
+    elif judge == 6:
+        # 测试RandomResize，注意此处F.resize必须要PIL类的图片
+        # 开始随机resize
+        size = 512
+        print("Before resize,\ninput picture size:", input_pic.size, "\ntarget picture size:", target_pic.size)
+        input_pic, target_pic = Resize(size)(input_pic, target_pic)
+        print("After resize,\ninput picture size:", input_pic.size, "\ntarget picture size:", target_pic.size)
 
     if judge != 5 and platform.system() == "Windows":
         # 输出图片效果，注意5是不行的

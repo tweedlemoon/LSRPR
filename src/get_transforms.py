@@ -138,7 +138,56 @@ def chase_db_get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224,
     if train:
         return ChaseDB1SegmentationPresetTrain(base_size, crop_size, mean=mean, std=std)
     else:
-        return DriveSegmentationPresetEval(mean=mean, std=std)
+        return ChaseDB1SegmentationPresetEval(mean=mean, std=std)
+
+
+# ---------------------------------------------------------------------------------------------------------------
+
+class ISIC2018SegmentationPresetTrain:
+    def __init__(self, base_size, crop_size, hflip_prob=0.5, vflip_prob=0.5,
+                 mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+        min_size = int(0.5 * base_size)
+        max_size = int(1.2 * base_size)
+
+        trans = [Trans.Resize(base_size)]
+        trans.append(Trans.RandomResize(min_size, max_size))
+
+        if hflip_prob > 0:
+            trans.append(Trans.RandomHorizontalFlip(hflip_prob))
+        if vflip_prob > 0:
+            trans.append(Trans.RandomVerticalFlip(vflip_prob))
+        trans.extend([
+            Trans.RandomCrop(crop_size),
+            Trans.ToTensor(),
+            Trans.Normalize(mean=mean, std=std),
+        ])
+        self.transforms = Trans.Compose(trans)
+
+    def __call__(self, img, target):
+        return self.transforms(img, target)
+
+
+class ISIC2018SegmentationPresetEval:
+    def __init__(self, size, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+        self.transforms = Trans.Compose([
+            Trans.Resize(size=size),
+            Trans.ToTensor(),
+            Trans.Normalize(mean=mean, std=std),
+        ])
+
+    def __call__(self, img, target):
+        return self.transforms(img, target)
+
+
+def isic_2018_get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+    # 此数据集图片都是很大的大小，故要裁切成512*512输入网络
+    base_size = 512
+    crop_size = 512
+
+    if train:
+        return ISIC2018SegmentationPresetTrain(base_size, crop_size, mean=mean, std=std)
+    else:
+        return ISIC2018SegmentationPresetEval(mean=mean, std=std, size=base_size)
 
 
 if __name__ == "__main__":

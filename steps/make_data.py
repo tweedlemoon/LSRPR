@@ -234,6 +234,58 @@ class Chase_db1Dataset(data.Dataset):
         return batched_imgs, batched_targets
 
 
+class ISIC2018Dataset(data.Dataset):
+    def __init__(self, root: str, train: bool, transforms=None):
+        super(ISIC2018Dataset, self).__init__()
+        self.pic_file = "ISIC2018_Task1-2_Training_Input" if train else "ISIC2018_Task1-2_Validation_Input"
+        self.gt_file = "ISIC2018_Task1_Training_GroundTruth" if train else "ISIC2018_Task1_Validation_GroundTruth"
+        data_root = os.path.join(root, "ISIC2018", self.pic_file)
+        gt_root = os.path.join(root, "ISIC2018", self.gt_file)
+        assert os.path.exists(data_root), f"path '{data_root}' does not exists."
+        self.transforms = transforms
+        img_names = [i for i in os.listdir(data_root) if i.endswith(".jpg")]
+        self.img_list = [os.path.join(data_root, i) for i in img_names]
+        self.manual = [os.path.join(gt_root, os.path.splitext(i)[0] + "_segmentation.png")
+                       for i in img_names]
+        # check files
+        for i in self.manual:
+            if os.path.exists(i) is False:
+                raise FileNotFoundError(f"file {i} does not exists.")
+
+    def __getitem__(self, idx):
+        img = Image.open(self.img_list[idx]).convert('RGB')
+        mask = Image.open(self.manual[idx]).convert('L')
+        # /255即是manual中黑色为0，血管处白色为1
+        mask = np.array(mask) / 255
+
+        # 这里转回PIL的原因是，transforms中是对PIL数据进行处理
+        mask = Image.fromarray(mask)
+
+        if self.transforms is not None:
+            img, mask = self.transforms(img, mask)
+
+        return img, mask
+
+    def __len__(self):
+        return len(self.img_list)
+
+    @staticmethod
+    def cat_list(images, fill_value=0):
+        max_size = tuple(max(s) for s in zip(*[img.shape for img in images]))
+        batch_shape = (len(images),) + max_size
+        batched_imgs = images[0].new(*batch_shape).fill_(fill_value)
+        for img, pad_img in zip(images, batched_imgs):
+            pad_img[..., :img.shape[-2], :img.shape[-1]].copy_(img)
+        return batched_imgs
+
+    @staticmethod
+    def collate_fn(batch):
+        images, targets = list(zip(*batch))
+        batched_imgs = DriveDataset.cat_list(images, fill_value=0)
+        batched_targets = DriveDataset.cat_list(targets, fill_value=255)
+        return batched_imgs, batched_targets
+
+
 class MakeData:
     def __init__(self, args):
         self.train_dataset = None
@@ -247,6 +299,8 @@ class MakeData:
             self.make_DRIVE(args=args)
         elif args.dataset == 'Chase_db1':
             self.make_Chase_db1(args=args)
+        elif args.dataset == 'ISIC2018':
+            self.make_ISIC2018(args=args)
 
     # voc2012 not used
     def make_voc2012(self, args):
@@ -320,6 +374,33 @@ class MakeData:
 
         self.val_dataset = Chase_db1Dataset(args.data_path,
                                             transforms=chase_db_get_transform(train=False))
+        num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
+        self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
+                                                        batch_size=args.batch_size,
+                                                        num_workers=num_workers,
+                                                        shuffle=True,
+                                                        pin_memory=True,
+                                                        collate_fn=self.train_dataset.collate_fn)
+
+        self.val_loader = torch.utils.data.DataLoader(self.val_dataset,
+                                                      batch_size=1,
+                                                      num_workers=num_workers,
+                                                      pin_memory=True,
+                                                      collate_fn=self.val_dataset.collate_fn)
+        print("Making data finished at: " + str(time.ctime(timer.get_current_time())))
+        print("Time used: " + str(timer.get_stage_elapsed()))
+        print('Done.')
+
+    def make_ISIC2018(self, args):
+        print("Start making ISIC2018 data...")
+        timer = Timer('Stage: Make Data ')
+        self.train_dataset = ISIC2018Dataset(args.data_path,
+                                             train=True,
+                                             transforms=isic_2018_get_transform(train=True))
+
+        self.val_dataset = ISIC2018Dataset(args.data_path,
+                                           train=False,
+                                           transforms=isic_2018_get_transform(train=False))
         num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
         self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
                                                         batch_size=args.batch_size,

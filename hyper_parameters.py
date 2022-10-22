@@ -27,7 +27,7 @@ In this part , all the hyper parameters are listed here.
 # which gpu to use, 0 default. Multi-gpu is not supported in this project.
 Which_GPU = "0"
 # which dataset to use
-Data_Name = "DRIVE"
+Data_Name = "ISIC2018"
 # which backbone to use
 Back_Bone = 'unet'
 # FCN use Aux.
@@ -35,16 +35,16 @@ Aux = True if Back_Bone == "fcn" else False
 # Step
 # step1:unsupervised learning
 # step2:supervised learning
-# Step = 1
-Step = 2
+Step = 1
+# Step = 2
 # learning rate initially, it will decrease when training
 Initial_Learning_Rate = 0.01
 # batchsize
 Batch_Size = 2
 # epoch number
-Epoch = 300
+Epoch = 20
 # use when debugging, it's to print messages on the console
-Print_Frequency = 1
+Print_Frequency = 100
 # device
 Device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # use cuda.amp?
@@ -58,8 +58,8 @@ Loss_Weight = [1.0, 2.0]
 
 # pretrained?
 # 如果加载pretrained模型，这里直接填写模型的pth文件路径
-# Pretrained = ''
-Pretrained = "experimental_data/DRIVE/model-unet-coe-5e-6-best_dice-0.821.pth"
+Pretrained = ''
+# Pretrained = "experimental_data/DRIVE/model-unet-coe-5e-6-best_dice-0.821.pth"
 if Step == 2 and Pretrained == '':
     raise ValueError('When do step 2, pretrained should not be empty.')
 # resume?
@@ -103,6 +103,16 @@ elif Data_Name == "DRIVE":
     Data_Root = Data_Path
     Class_Num = 1
 elif Data_Name == 'Chase_db1':
+    # part:DRIVE Dataset
+    if platform.system() == "Windows":
+        Data_Path = "E:/Datasets/"
+    else:
+        Data_Path = "/Data20T/data20t/data20t/Liuyifei/Datasets"
+        # Data_Path = "/root/autodl-tmp"
+
+    Data_Root = Data_Path
+    Class_Num = 1
+elif Data_Name == 'ISIC2018':
     # part:DRIVE Dataset
     if platform.system() == "Windows":
         Data_Path = "E:/Datasets/"

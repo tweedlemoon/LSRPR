@@ -11,7 +11,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="LSF for segmentation")
 
     parser.add_argument("--which-gpu", default=Which_GPU, type=str, help="which gpu to use")
-    parser.add_argument("--dataset", default=Data_Name, type=str, choices=["DRIVE", 'Chase_db1'],
+    parser.add_argument("--dataset", default=Data_Name, type=str, choices=["DRIVE", 'Chase_db1', 'ISIC2018'],
                         help="which dataset to use")
     parser.add_argument("--data-path", default=Data_Root, help="data root")
     parser.add_argument("--num-classes", default=Class_Num, type=int)
