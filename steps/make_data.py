@@ -240,10 +240,10 @@ class RITEDataset(data.Dataset):
         data_root = None
         if train:
             data_root = os.path.join(root, "RITE", 'train', 'images')
-            gt_root = os.path.join(root, "RITE", 'train', 'mask')
+            gt_root = os.path.join(root, "RITE", 'train', 'masks')
         else:
             data_root = os.path.join(root, "RITE", 'test', 'images')
-            gt_root = os.path.join(root, "RITE", 'test', 'mask')
+            gt_root = os.path.join(root, "RITE", 'test', 'masks')
 
         assert os.path.exists(data_root), f"path '{data_root}' does not exists."
         self.transforms = transforms
@@ -453,10 +453,12 @@ class MakeData:
         print("Start making RITE data...")
         timer = Timer('Stage: Make Data ')
         self.train_dataset = RITEDataset(args.data_path,
-                                              transforms=rite_get_transform(train=True))
+                                         train=True,
+                                         transforms=rite_get_transform(train=True))
 
         self.val_dataset = RITEDataset(args.data_path,
-                                            transforms=rite_get_transform(train=False))
+                                       train=False,
+                                       transforms=rite_get_transform(train=False))
         num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
         self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
                                                         batch_size=args.batch_size,

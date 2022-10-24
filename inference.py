@@ -30,7 +30,7 @@ def parse_arguments():
     parser.add_argument("--back-bone", default='unet', type=str,
                         choices=["fcn", "unet", "r2unet", "attunet", "r2attunet", 'saunet', 'attunetplus'])
     parser.add_argument("--num-classes", default=Class_Num, type=int)
-    parser.add_argument("--dataset", default='DRIVE', type=str, choices=["DRIVE", 'Chase_db1'],
+    parser.add_argument("--dataset", default='DRIVE', type=str, choices=["DRIVE", 'Chase_db1', 'RITE', 'ISIC2018'],
                         help="which dataset to use")
     parser.add_argument("--is_val", default='val', type=str, choices=['train', 'val'],
                         help='Use test or train to inference. Only for DRIVE dataset.')
