@@ -190,5 +190,51 @@ def isic_2018_get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224
         return ISIC2018SegmentationPresetEval(mean=mean, std=std, size=base_size)
 
 
+# ---------------------------------------------------------------------------------------------------------------
+
+
+class RITESegmentationPresetTrain:
+    def __init__(self, base_size, crop_size, hflip_prob=0.5, vflip_prob=0.5,
+                 mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+        min_size = int(0.5 * base_size)
+        max_size = int(1.2 * base_size)
+
+        trans = [Trans.RandomResize(min_size, max_size)]
+        if hflip_prob > 0:
+            trans.append(Trans.RandomHorizontalFlip(hflip_prob))
+        if vflip_prob > 0:
+            trans.append(Trans.RandomVerticalFlip(vflip_prob))
+        trans.extend([
+            Trans.CenterCrop(crop_size),
+            Trans.ToTensor(),
+            Trans.Normalize(mean=mean, std=std),
+        ])
+        self.transforms = Trans.Compose(trans)
+
+    def __call__(self, img, target):
+        return self.transforms(img, target)
+
+
+class RITESegmentationPresetEval:
+    def __init__(self, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+        self.transforms = Trans.Compose([
+            Trans.ToTensor(),
+            Trans.Normalize(mean=mean, std=std),
+        ])
+
+    def __call__(self, img, target):
+        return self.transforms(img, target)
+
+
+def rite_get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+    base_size = 512
+    crop_size = 480
+
+    if train:
+        return RITESegmentationPresetTrain(base_size, crop_size, mean=mean, std=std)
+    else:
+        return RITESegmentationPresetEval(mean=mean, std=std)
+
+
 if __name__ == "__main__":
     present_train = DriveSegmentationPresetTrain(base_size=565, crop_size=480)

@@ -1,4 +1,4 @@
-python trainLSF.py \
+CUDA_VISIBLE_DEVICES=2 python trainLSF.py \
   --which-gpu 0 \
   --device cuda \
   --dataset DRIVE \
@@ -13,7 +13,7 @@ python trainLSF.py \
   --momentum 0.9 \
   --weight-decay 1e-4
 
-python inference.py \
+CUDA_VISIBLE_DEVICES=2 python inference.py \
   --which-gpu 0 \
   --device cuda \
   --data-path /root/autodl-tmp/liuyifei \
