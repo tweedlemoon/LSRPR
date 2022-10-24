@@ -72,6 +72,7 @@ def compute_index(args):
 
     pth = torch.load(args.model_path, map_location=device)
     model.load_state_dict(pth['model'])
+    loader = None
 
     # 多张图片测试，直接制作dataloader
     if args.dataset == 'DRIVE':
@@ -87,6 +88,8 @@ def compute_index(args):
             loader = infmk(args=args).loader_manual_1
         elif args.manual == 'manual2':
             loader = infmk(args=args).loader_manual_2
+    elif args.dataset == 'ISIC2018':
+        loader = originmk(args=args).val_loader
 
     all_f1_score = 0.0
     all_accuracy = 0.0
@@ -97,7 +100,11 @@ def compute_index(args):
     with torch.no_grad():
         for idx, (img, real_result) in enumerate(loader, start=0):
             ground_truth = loader.dataset.manual[idx]
-            ground_truth = transforms.ToTensor()(PIL.Image.open(ground_truth).convert('1')).to(torch.int64)
+            if args.dataset != 'ISIC2018':
+                ground_truth = transforms.ToTensor()(PIL.Image.open(ground_truth).convert('1')).to(torch.int64)
+            if args.dataset == 'ISIC2018':
+                ground_truth = transforms.Resize(512)(PIL.Image.open(ground_truth))
+                ground_truth = transforms.ToTensor()(ground_truth.convert('1')).to(torch.int64)
             ground_truth = ground_truth.to(device)
 
             img = img.to(device)
@@ -137,6 +144,7 @@ def run_inference(args):
 
     pth = torch.load(args.model_path, map_location=device)
     model.load_state_dict(pth['model'])
+    loader = None
 
     # 多张图片测试，直接制作dataloader
     if args.dataset == 'DRIVE':
@@ -152,6 +160,8 @@ def run_inference(args):
             loader = infmk(args=args).loader_manual_1
         elif args.manual == 'manual2':
             loader = infmk(args=args).loader_manual_2
+    elif args.dataset == 'ISIC2018':
+        loader = originmk(args=args).val_loader
 
     model.eval()
     if args.dataset == 'DRIVE':
@@ -231,6 +241,55 @@ def run_inference(args):
                 # 生成带颜色的图片
                 color_img = generate_color_img(
                     ground_truth=transforms.ToTensor()(ground_truth.convert('1')).to(torch.int64),
+                    prediction=argmax_output.cpu())
+
+                if args.show == 'yes':
+                    triple_img_show(original_img=format_convert(original_img),
+                                    original_mask=format_convert(ground_truth),
+                                    predicted_img=format_convert(np_argmax_output))
+                    img_show(img=color_img)
+
+                if args.visualization == 'all':
+                    parent_dir = os.path.join('predict_pic', args.back_bone + '_' + args.is_mine + '_' + args.dataset)
+                    generate_path(parent_dir)
+                    predicted_img = format_convert(np_argmax_output)
+                    this_img = os.path.basename(loader.dataset.img_list[idx])
+                    this_img = this_img.split('.')[0]
+                    save_img_name = os.path.join(parent_dir, this_img + '_' + args.back_bone + '_prediciton' + '.png')
+                    save_img_name_color = os.path.join(parent_dir,
+                                                       this_img + '_' + args.back_bone + '_prediciton_color' + '.png')
+                    predicted_img.save(save_img_name)
+                    color_img.save(save_img_name_color)
+                    print('Have saved ' + save_img_name)
+                    print('Have saved ' + save_img_name_color)
+                print('Done ' + '[' + str(idx + 1) + '/' + str(loader.dataset.__len__()) + ']')
+
+    elif args.dataset == 'ISIC2018':
+        with torch.no_grad():
+            for idx, (img, real_result) in enumerate(loader, start=0):
+                original_img = loader.dataset.img_list[idx]
+                ground_truth = loader.dataset.manual[idx]
+                original_img = PIL.Image.open(original_img)
+                ground_truth = PIL.Image.open(ground_truth)
+                # double_img_show(format_convert(original_img), format_convert(ground_truth))
+
+                img = img.to(device)
+                net_output = model(img)['out']
+                # val_range("Network output", net_output)
+                # 进行argmax操作
+                argmax_output = net_output.argmax(1)
+                # val_range("Argmax output", argmax_output)
+                # 注意此处必须先把tensor从gpu中拿到cpu才能转numpy
+                np_argmax_output = np.array(argmax_output.cpu())
+                # 0是黑，255是白，故要乘以255，0依旧是0,1则变成255
+                np_argmax_output = np_argmax_output.astype(np.uint8).squeeze(0) * 255
+                # val_range("Numpy argmax output", np_argmax_output)
+
+                ground_truth = transforms.Resize(512)(ground_truth)
+                ground_truth = transforms.ToTensor()(ground_truth.convert('1')).to(torch.int64)
+                # 生成带颜色的图片
+                color_img = generate_color_img(
+                    ground_truth=ground_truth,
                     prediction=argmax_output.cpu())
 
                 if args.show == 'yes':
