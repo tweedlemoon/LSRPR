@@ -1,22 +1,15 @@
 import argparse
 
 from PIL import Image
+from torchvision import transforms
 
 from hyper_parameters import *
-from utils.handy_functions import *
-from models.unet import create_unet_model
+from models.attunetplus import AttU_Net_Plus
 from models.r2unet import *
 from models.sa_unet import SA_Unet
-from models.attunetplus import AttU_Net_Plus
-import PIL
-from torchvision import transforms
+from models.unet import create_unet_model
 from utils.fig_drawing_3d import generate_3d_fig
-
-from utils.eval_utils import ConfusionMatrix
-from utils.timer import Timer
-from steps.make_data import MakeData as originmk
-from steps.make_data_inference import MakeData as infmk
-from utils.color_palette import generate_color_img
+from utils.handy_functions import *
 
 Model_path = 'experimental_data/DRIVE/model-attunet-coe-0-time-20220517-1-best_dice-0.8204290270805359.pth'
 Input_pic = 'E:/Datasets/DRIVE/test/images/01_test.tif'
@@ -29,16 +22,17 @@ side_lenth = x2 - x1
 
 
 def parse_arguments():
+    my_params = HyperParameters()
     parser = argparse.ArgumentParser(description='Do one prediction.')
     # batchsize是做数据的时候判断使用多少CPU核心时用的，其实在做验证集时并不需要
-    parser.add_argument("-b", "--batch-size", default=Batch_Size, type=int)
-    parser.add_argument("--which-gpu", default=Which_GPU, type=str, help="which gpu to use")
-    parser.add_argument("--data-path", default=Data_Root, help="data root")
-    parser.add_argument("--device", default=str(Device), type=str, help="training device")
+    parser.add_argument("-b", "--batch-size", default=my_params.Batch_Size, type=int)
+    parser.add_argument("--which-gpu", default=my_params.Which_GPU, type=str, help="which gpu to use")
+    parser.add_argument("--data-path", default=my_params.Data_Root, help="data root")
+    parser.add_argument("--device", default=str(my_params.Device), type=str, help="training device")
     parser.add_argument('--model_path', default=Model_path, help="the best trained model root")
     parser.add_argument("--back-bone", default='attunet', type=str,
                         choices=["fcn", "unet", "r2unet", "attunet", "r2attunet", 'saunet', 'attunetplus'])
-    parser.add_argument("--num-classes", default=Class_Num, type=int)
+    parser.add_argument("--num-classes", default=my_params.Class_Num, type=int)
     parser.add_argument("--dataset", default='DRIVE', type=str, choices=["DRIVE", 'Chase_db1'],
                         help="which dataset to use")
 
