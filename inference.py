@@ -15,6 +15,11 @@ from steps.make_data import MakeData as originmk
 from steps.make_data_inference import MakeData as infmk
 from utils.color_palette import generate_color_img
 
+my_params = HyperParameters()
+# 限制CPU进程数
+os.environ["OMP_NUM_THREADS"] = '1'
+os.environ["CUDA_VISIBLE_DEVICES"] = my_params.Which_GPU
+
 Model_path = ''
 Manual = 'manual2'
 
@@ -385,10 +390,6 @@ if __name__ == '__main__':
 
     # 当显存不够时使用
     # args.device = 'cpu'
-    os.environ["OMP_NUM_THREADS"] = '1'
-    if args.device == 'cuda':
-        # use which GPU and initial
-        os.environ["CUDA_VISIBLE_DEVICES"] = args.which_gpu
     # 预测图存储位置
     generate_path('predict_pic/')
 

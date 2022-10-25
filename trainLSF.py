@@ -6,9 +6,13 @@ from steps.make_net import MakeNet
 from steps.train_eval_model import train_eval_model
 from utils.timer import Timer
 
+my_params = HyperParameters()
+# 限制CPU进程数
+os.environ["OMP_NUM_THREADS"] = '1'
+os.environ["CUDA_VISIBLE_DEVICES"] = my_params.Which_GPU
+
 
 def parse_args():
-    my_params = HyperParameters()
     parser = argparse.ArgumentParser(description="LSF for segmentation")
 
     parser.add_argument("--which-gpu", default=my_params.Which_GPU, type=str, help="which gpu to use")
@@ -65,11 +69,7 @@ if __name__ == '__main__':
     args = parse_args()
     # +1这个1是背景background
     args.num_classes += 1
-    # 限制CPU进程数
-    os.environ["OMP_NUM_THREADS"] = '1'
-    if args.device == 'cuda':
-        # use which GPU or and initial
-        os.environ["CUDA_VISIBLE_DEVICES"] = args.which_gpu
+
     print(args)
     timer = Timer("Work begin.")
 

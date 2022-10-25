@@ -10,7 +10,8 @@ Alter it to your own when you want to run it on your own pc or server.
 
 
 class HyperParameters(object):
-    def __init__(self, data_name='DRIVE', back_bone='attunet', epoch=200, batch_size=2, which_gpu='0', step=1,
+    def __init__(self, level_set_coe=1e-6, data_name='RITE', back_bone='attunet', epoch=200, batch_size=2,
+                 which_gpu='1', step=1,
                  pretrained=''):
         self.generate_dir()
         self.Result_Root = "./results"
@@ -39,7 +40,7 @@ class HyperParameters(object):
         # 是否使用Dice损失
         self.Dice = "dice"
         # 0代表不使用水平集损失
-        self.Level_Set_Coe = 0.000001
+        self.Level_Set_Coe = level_set_coe
         # loss weight
         self.Loss_Weight = [1.0, 2.0]
         # resume?
@@ -122,6 +123,16 @@ class HyperParameters(object):
             self.Data_Root = Data_Path
             self.Class_Num = 1
         elif self.Data_Name == 'Chase_db1':
+            # part:DRIVE Dataset
+            if platform.system() == "Windows":
+                Data_Path = "E:/Datasets/"
+            else:
+                Data_Path = "/Data20T/data20t/data20t/Liuyifei/Datasets"
+                # Data_Path = "/root/autodl-tmp"
+
+            self.Data_Root = Data_Path
+            self.Class_Num = 1
+        elif self.Data_Name == 'RITE':
             # part:DRIVE Dataset
             if platform.system() == "Windows":
                 Data_Path = "E:/Datasets/"
