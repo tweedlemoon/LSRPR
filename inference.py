@@ -99,6 +99,7 @@ def compute_index(args):
     elif args.dataset == 'ISIC2018':
         loader = originmk(args=args).val_loader
 
+    all_recall = 0.0
     all_f1_score = 0.0
     all_accuracy = 0.0
     all_miou = 0.0
@@ -124,17 +125,20 @@ def compute_index(args):
             matrix.update(1 - ground_truth, 1 - argmax_output)
             matrix.prf_compute()
             all_accuracy += matrix.accuracy
+            all_recall += matrix.recall
             # 这里是二分类，定义血管白色为正例，所以precision和recall都是第一个，从而F1score也是第一个，故带下标0
             all_f1_score += matrix.f1_score[0]
             all_miou += matrix.miou
             matrix.reset()
 
+    recall = all_recall / loader.__len__()
     accuracy = all_accuracy / loader.__len__()
     f1_score = all_f1_score / loader.__len__()
     miou = all_miou / loader.__len__()
     print("Time used: " + str(timer.get_stage_elapsed()))
 
     print('Report:')
+    print('Accuracy:', recall.item())
     print('Accuracy:', accuracy.item())
     print('F1 Score:', f1_score.item())
     print('mIoU:', miou.item())
