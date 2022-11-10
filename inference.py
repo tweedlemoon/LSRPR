@@ -125,7 +125,7 @@ def compute_index(args):
             matrix.update(1 - ground_truth, 1 - argmax_output)
             matrix.prf_compute()
             all_accuracy += matrix.accuracy
-            all_recall += matrix.recall
+            all_recall += matrix.recall[0]
             # 这里是二分类，定义血管白色为正例，所以precision和recall都是第一个，从而F1score也是第一个，故带下标0
             all_f1_score += matrix.f1_score[0]
             all_miou += matrix.miou
@@ -138,7 +138,7 @@ def compute_index(args):
     print("Time used: " + str(timer.get_stage_elapsed()))
 
     print('Report:')
-    print('Accuracy:', recall.item())
+    print('Recall:', recall.item())
     print('Accuracy:', accuracy.item())
     print('F1 Score:', f1_score.item())
     print('mIoU:', miou.item())
