@@ -66,6 +66,9 @@ def train_eval_model(args, Data: MakeData, Net: MakeNet):
         if args.amp:
             save_file["scaler"] = Net.scaler.state_dict()
 
+        if not os.path.exists(os.path.join("save_weights", str(args.dataset))):
+            os.mkdir(os.path.join("save_weights", str(args.dataset)))
+
         if args.save_best is True:
             # torch.save(save_file, "save_weights/best_model.pth")
             cur_pth = "model-{}-coe-{}-time-{}-best_dice-{}-{}.pth" \
@@ -77,17 +80,17 @@ def train_eval_model(args, Data: MakeData, Net: MakeNet):
                         )
 
             if last_pth != "":
-                os.remove("save_weights/" + last_pth)
+                os.remove(os.path.join("save_weights", str(args.dataset), last_pth))
                 # print("remove a pth")
                 last_pth = cur_pth
             else:
                 last_pth = cur_pth
 
-            torch.save(save_file, "save_weights/" + cur_pth)
+            torch.save(save_file, os.path.join("save_weights", str(args.dataset), cur_pth))
             # print("write a pth")
 
         else:
-            torch.save(save_file, "save_weights/model_{}.pth".format(epoch))
+            torch.save(save_file, os.path.join("save_weights", str(args.dataset), "/model_{}.pth".format(epoch)))
 
     total_time = timer.get_stage_elapsed()
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))

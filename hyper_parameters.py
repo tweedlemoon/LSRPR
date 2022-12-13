@@ -10,8 +10,8 @@ Alter it to your own when you want to run it on your own pc or server.
 
 
 class HyperParameters(object):
-    def __init__(self, level_set_coe=1e-6, data_name='RITE', back_bone='attunet', epoch=200, batch_size=2,
-                 which_gpu='1', step=1,
+    def __init__(self, level_set_coe=1e-6, data_name='DRIVE', back_bone='attunet', epoch=200, batch_size=2,
+                 which_gpu='0', step=1,
                  pretrained=''):
         self.generate_dir()
         self.Result_Root = "./results"

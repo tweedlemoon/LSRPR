@@ -130,6 +130,18 @@ class ChaseDB1SegmentationPresetEval:
         return self.transforms(img, target)
 
 
+class ChaseDB1SegmentationResizePresetEval:
+    def __init__(self, base_size, crop_size, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+        self.transforms = Trans.Compose([
+            Trans.Resize(crop_size),
+            Trans.ToTensor(),
+            Trans.Normalize(mean=mean, std=std),
+        ])
+
+    def __call__(self, img, target):
+        return self.transforms(img, target)
+
+
 def chase_db_get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
     # 此数据集图片都是999*960的大小，故要裁切成960*960输入网络
     base_size = 999
@@ -139,6 +151,7 @@ def chase_db_get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224,
         return ChaseDB1SegmentationPresetTrain(base_size, crop_size, mean=mean, std=std)
     else:
         return ChaseDB1SegmentationPresetEval(mean=mean, std=std)
+        # return ChaseDB1SegmentationResizePresetEval(base_size, crop_size, mean=mean, std=std)
 
 
 # ---------------------------------------------------------------------------------------------------------------

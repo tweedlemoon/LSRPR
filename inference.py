@@ -20,7 +20,7 @@ my_params = HyperParameters()
 os.environ["OMP_NUM_THREADS"] = '1'
 os.environ["CUDA_VISIBLE_DEVICES"] = my_params.Which_GPU
 
-Model_path = ''
+Model_path = 'E:/MyFiles/Work/Weights/Chase_db1/model-unet-coe-1e-06-time-20220524-1-best_dice-0.852221667766571.pth'
 Manual = 'manual2'
 
 
@@ -109,11 +109,15 @@ def compute_index(args):
     with torch.no_grad():
         for idx, (img, real_result) in enumerate(loader, start=0):
             ground_truth = loader.dataset.manual[idx]
-            if args.dataset != 'ISIC2018':
-                ground_truth = transforms.ToTensor()(PIL.Image.open(ground_truth).convert('1')).to(torch.int64)
+
             if args.dataset == 'ISIC2018':
                 ground_truth = transforms.Resize(512)(PIL.Image.open(ground_truth))
                 ground_truth = transforms.ToTensor()(ground_truth.convert('1')).to(torch.int64)
+            # elif args.dataset == 'Chase_db1':
+            #     ground_truth = transforms.Resize(480)(PIL.Image.open(ground_truth))
+            #     ground_truth = transforms.ToTensor()(ground_truth.convert('1')).to(torch.int64)
+            else:
+                ground_truth = transforms.ToTensor()(PIL.Image.open(ground_truth).convert('1')).to(torch.int64)
             ground_truth = ground_truth.to(device)
 
             img = img.to(device)
@@ -398,4 +402,4 @@ if __name__ == '__main__':
     generate_path('predict_pic/')
 
     compute_index(args=args)
-    run_inference(args=args)
+    # run_inference(args=args)
