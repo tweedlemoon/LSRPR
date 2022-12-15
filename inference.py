@@ -20,7 +20,7 @@ my_params = HyperParameters()
 os.environ["OMP_NUM_THREADS"] = '1'
 os.environ["CUDA_VISIBLE_DEVICES"] = my_params.Which_GPU
 
-Model_path = 'E:/MyFiles/Work/Weights/Chase_db1/model-unet-coe-1e-06-time-20220524-1-best_dice-0.852221667766571.pth'
+Model_path = ''
 Manual = 'manual2'
 
 
@@ -402,4 +402,4 @@ if __name__ == '__main__':
     generate_path('predict_pic/')
 
     compute_index(args=args)
-    # run_inference(args=args)
+    run_inference(args=args)
