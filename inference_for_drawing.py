@@ -77,7 +77,7 @@ def predict_one_pic(args):
     model.eval()  # 进入验证模式
     with torch.no_grad():
         net_output = model(img)['out']
-    val_range('net output', net_output)
+    val_range(net_output, 'net output')
     argmaxed = net_output.argmax(1)
     back = -net_output[:, 0, :, :]
     fore = net_output[:, 1, :, :]

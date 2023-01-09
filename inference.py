@@ -194,15 +194,15 @@ def run_inference(args):
 
                 img = img.to(device)
                 net_output = model(img)['out']
-                # val_range("Network output", net_output)
+                # val_range(net_output, "Network output")
                 # 进行argmax操作
                 argmax_output = net_output.argmax(1)
-                # val_range("Argmax output", argmax_output)
+                # val_range(argmax_output, "Argmax output")
                 # 注意此处必须先把tensor从gpu中拿到cpu才能转numpy
                 np_argmax_output = np.array(argmax_output.cpu())
                 # 0是黑，255是白，故要乘以255，0依旧是0,1则变成255
                 np_argmax_output = np_argmax_output.astype(np.uint8).squeeze(0) * 255
-                # val_range("Numpy argmax output", np_argmax_output)
+                # val_range(np_argmax_output, "Numpy argmax output")
 
                 # 把周围跟mask处理一下
                 roi_img = PIL.Image.open(roi_mask).convert('L')
@@ -246,15 +246,15 @@ def run_inference(args):
 
                 img = img.to(device)
                 net_output = model(img)['out']
-                # val_range("Network output", net_output)
+                # val_range(net_output, "Network output")
                 # 进行argmax操作
                 argmax_output = net_output.argmax(1)
-                # val_range("Argmax output", argmax_output)
+                # val_range(argmax_output, "Argmax output")
                 # 注意此处必须先把tensor从gpu中拿到cpu才能转numpy
                 np_argmax_output = np.array(argmax_output.cpu())
                 # 0是黑，255是白，故要乘以255，0依旧是0,1则变成255
                 np_argmax_output = np_argmax_output.astype(np.uint8).squeeze(0) * 255
-                # val_range("Numpy argmax output", np_argmax_output)
+                # val_range(np_argmax_output, "Numpy argmax output")
 
                 # 生成带颜色的图片
                 color_img = generate_color_img(
@@ -293,15 +293,15 @@ def run_inference(args):
 
                 img = img.to(device)
                 net_output = model(img)['out']
-                # val_range("Network output", net_output)
+                # val_range(net_output, "Network output")
                 # 进行argmax操作
                 argmax_output = net_output.argmax(1)
-                # val_range("Argmax output", argmax_output)
+                # val_range(argmax_output, "Argmax output")
                 # 注意此处必须先把tensor从gpu中拿到cpu才能转numpy
                 np_argmax_output = np.array(argmax_output.cpu())
                 # 0是黑，255是白，故要乘以255，0依旧是0,1则变成255
                 np_argmax_output = np_argmax_output.astype(np.uint8).squeeze(0) * 255
-                # val_range("Numpy argmax output", np_argmax_output)
+                # val_range(np_argmax_output, "Numpy argmax output")
 
                 # 生成带颜色的图片
                 color_img = generate_color_img(
@@ -340,15 +340,15 @@ def run_inference(args):
 
                 img = img.to(device)
                 net_output = model(img)['out']
-                # val_range("Network output", net_output)
+                # val_range(net_output, "Network output")
                 # 进行argmax操作
                 argmax_output = net_output.argmax(1)
-                # val_range("Argmax output", argmax_output)
+                # val_range(argmax_output, "Argmax output")
                 # 注意此处必须先把tensor从gpu中拿到cpu才能转numpy
                 np_argmax_output = np.array(argmax_output.cpu())
                 # 0是黑，255是白，故要乘以255，0依旧是0,1则变成255
                 np_argmax_output = np_argmax_output.astype(np.uint8).squeeze(0) * 255
-                # val_range("Numpy argmax output", np_argmax_output)
+                # val_range(np_argmax_output, "Numpy argmax output")
 
                 ground_truth = transforms.Resize(512)(ground_truth)
                 ground_truth = transforms.ToTensor()(ground_truth.convert('1')).to(torch.int64)

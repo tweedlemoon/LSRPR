@@ -519,7 +519,7 @@ if __name__ == '__main__':
     args = parse_arguments()
     train_loader = MakeData(args=args).train_loader
     for img, mask in train_loader:
-        val_range('img', img)
-        val_range('mask', mask)
+        val_range(img, 'img')
+        val_range(mask, 'mask')
         img_show(format_convert(mask))
     pass

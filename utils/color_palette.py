@@ -61,6 +61,6 @@ if __name__ == '__main__':
     # 找个图片测试一下
     mask_dir = 'E:/Datasets/DRIVE/test/2nd_manual/01_manual2.gif'
     mask = transforms.ToTensor()(Image.open(mask_dir).convert('1')).to(torch.int64)
-    val_range('test', mask)
+    val_range(mask, 'test')
     paletted_img = color_img(mask)
     img_show(paletted_img)

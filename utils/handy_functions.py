@@ -8,7 +8,7 @@ from torch.nn import init
 from torchvision import transforms
 
 
-def val_range(name: str, input_val):
+def val_range(input_val, name='default name'):
     """
     返回一个图像/numpy/tensor的最大值最小值，在处理过程中打印其尺寸
     :param name:该输入的名字
@@ -163,5 +163,67 @@ def dfs_showdir(path, depth):
                 dfs_showdir(newitem, depth + 1)
 
 
+def channel_extract(pic_path, channel, save_dir='', save_name=''):
+    """
+    :param pic_path: 图片文件路径，一张图片，如果是灰度图，会转成三通道RGB后提取对应通道
+    :param channel: 要提取出哪个通道
+    :return:
+    """
+    if channel not in ['r', 'g', 'b', 'R', 'G', 'B']:
+        raise ValueError('channel must be R/G/B')
+
+    pic = PIL.Image.open(pic_path).convert('RGB')
+    pic_tensor = transforms.ToTensor()(pic)
+    # 由于要清空其它通道，所以r对应1和2
+    value_dict = {'r': [1, 2], 'R': [1, 2], 'g': [0, 2], 'G': [0, 2], 'b': [0, 1], 'B': [0, 1]}
+    for i in value_dict[channel]:
+        pic_tensor[i, :, :] = 0.0
+    result = format_convert(pic_tensor)
+
+    # 显示图片
+    # img_show(result)
+
+    # 保存图片
+    save_path = save_file_generate(original_dir=pic_path, save_dir=save_dir, save_name=save_name)
+    result.save(save_path)
+
+
+def save_file_generate(original_dir='', save_dir='', save_name=''):
+    """
+    :param original_dir: 原来的文件是什么
+    :param save_dir: 存在哪个文件夹下
+    :param save_name: 存的名字是什么，如果非空则要带后缀
+    :return:一个合理的路径
+    """
+    if original_dir == '':
+        # 新诞生的文件，此时save_name不能为空
+        if save_name == '' or save_dir == '':
+            raise ValueError('Path or file name cannot be empty.')
+        else:
+            return os.path.join(os.path.abspath(save_dir), save_name)
+    else:
+        # 原来就有的文件
+        original_dir = os.path.abspath(original_dir)
+        if save_dir == '':
+            save_dir = os.path.dirname(original_dir)
+        else:
+            save_dir = os.path.abspath(save_dir)
+
+        # 如果给到的文件名是空，那么以原名_new来命名
+        if save_name == '':
+            # 获取后缀
+            suffix = os.path.splitext(original_dir)[-1]
+            # 获取原来文件名
+            original_name = os.path.basename(original_dir).split('.')[0]
+            save_name = original_name + '_new' + suffix
+
+        return os.path.join(os.path.abspath(save_dir), save_name)
+
+
 if __name__ == '__main__':
+    # pic_path = 'E:/Datasets/DRIVE/test/2nd_manual/01_manual2.gif'
+    pic_path = 'E:/Datasets/DRIVE/test/images/01_test.tif'
+    newpath = save_file_generate(original_dir=pic_path)
+
+    channel_extract(pic_path, 'b')
     pass
