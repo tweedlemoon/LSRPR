@@ -225,5 +225,7 @@ if __name__ == '__main__':
     pic_path = 'E:/Datasets/DRIVE/test/images/01_test.tif'
     newpath = save_file_generate(original_dir=pic_path)
 
-    channel_extract(pic_path, 'b')
+    channel_extract(pic_path, 'r', save_name='r.tif')
+    channel_extract(pic_path, 'g', save_name='g.tif')
+    channel_extract(pic_path, 'b', save_name='b.tif')
     pass

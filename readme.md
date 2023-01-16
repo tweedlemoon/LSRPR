@@ -1,6 +1,8 @@
-# 水平集指导的两阶段眼球血管分割(Level Set Guided Two-stage Framework For Retina Vessel Segmentation)
+# 水平集指导区域特征修正的眼球血管分割(Level Set Guided Region Prototype Rectification Network for Retina Vessel Segmentation)
 
 ## 简介 Introduction
+
+![](figures/flowchart.png)
 
 | Image                    | Ground Truth                | Unet                       | Unet+Ours                     | Att-Unet                      | Att-Unet+Ours                    |
 | ------------------------ | ------------------------ | ------------------------ | ------------------------ | ------------------------ | ------------------------ |
@@ -8,8 +10,6 @@
 | ![](figures/Image/11_test.png) | ![](figures/gt/11_manual2.gif) | ![](figures/unet_origin_DRIVE/11_test_unet_prediciton_color.png.png) | ![](figures/unet_mine_DRIVE/11_test_unet_prediciton_color.png) | ![](figures/attunet_origin_DRIVE/11_test_attunet_prediciton_color.png) | ![](figures/attunet_mine_DRIVE/11_test_attunet_prediciton_color.png) |
 | ![](figures/Image/Image_08L.jpg) | ![](figures/gt/Image_08L_1stHO.png) | ![](figures/unet_origin_Chase_db1/Image_08L_unet_prediciton_color.png) | ![](figures/unet_mine_Chase_db1/Image_08L_unet_prediciton_color.png) | ![](figures/attunet_origin_Chase_db1/Image_08L_attunet_prediciton_color.png) | ![](figures/attunet_mine_Chase_db1/Image_08L_attunet_prediciton_color.png) |
 
-
-![](figures/flowchart.png)
 
 ## 更新日志 Updates
 
@@ -69,46 +69,6 @@ This table shows the greatest results I've gotten so far using my training strat
 | Chase_db1 | SA-UNet(complex)+Ours      | 0.9717(↑)/0.7989(↑)/0.8179(↑)             |                |                |
 
 
-
-## 项目结构 Structure
-
-```shell
-+--execute_example.sh
-+--hyper_parameters.py
-+--inference.py # Inference the model.
-+--models # Network to use.
-|      +--attunetplus.py
-|      +--fcn.py
-|      +--pfan.py
-|      +--r2unet.py
-|      +--sa_unet.py
-|      +--unet.py
-|      +--__init__.py
-+--readme.md
-+--src
-|      +--get_transforms.py
-|      +--loss.py # Loss function of the project.
-|      +--__init__.py
-+--steps # Steps of training.
-|      +--make_data.py
-|      +--make_data_inference.py
-|      +--make_net.py
-|      +--train_eval_model.py
-|      +--__init__.py
-+--trainLSF.py
-+--utils # Some utils.
-|      +--emailSender.py
-|      +--eval_utils.py
-|      +--handy_functions.py
-|      +--metric_logger.py
-|      +--result_analysis.py
-|      +--timer.py
-|      +--transforms.py
-|      +--__init__.py
-```
-
-
-
 ## 运行方法 Usage
 
 ```bash
@@ -140,7 +100,7 @@ python trainLSF.py
 
 They are also in **hyper_parameters.py**
 
-```
+```bash
 python inference.py
 ```
 
