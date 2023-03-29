@@ -41,7 +41,7 @@ This project requires a very minimal setting.
 - Pillow
 - matplotlib
 
-Our project supports windows (windows 10/11) & linux (Ubuntu 20.04)
+Our project supports windows (windows 10/11) & linux (Ubuntu 20.04)  
 Note: In Windows, python or anaconda (venv) should not in C:\\, which may cause authority error.
 
 
@@ -113,7 +113,7 @@ python inference.py
 
  ### 使用bash训练 Training via bash
  
-There is an example in /run.sh in this project, you can alter it and train on the server.
+There is an example in /execute_example.sh in this project, you can alter it and rename it to /run.sh, and then train it on the server.
 
 ```bash
 # 后台运行
