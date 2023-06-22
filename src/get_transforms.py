@@ -74,8 +74,9 @@ class DriveSegmentationPresetTrain:
 
 
 class DriveSegmentationPresetEval:
-    def __init__(self, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+    def __init__(self, crop_size, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
         self.transforms = Trans.Compose([
+            Trans.Resize([crop_size, crop_size]),
             Trans.ToTensor(),
             Trans.Normalize(mean=mean, std=std),
         ])
@@ -93,7 +94,7 @@ def drive_get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.
     if train:
         return DriveSegmentationPresetTrain(base_size, crop_size, mean=mean, std=std)
     else:
-        return DriveSegmentationPresetEval(mean=mean, std=std)
+        return DriveSegmentationPresetEval(crop_size, mean=mean, std=std)
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -133,7 +134,7 @@ class ChaseDB1SegmentationPresetEval:
 class ChaseDB1SegmentationResizePresetEval:
     def __init__(self, base_size, crop_size, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
         self.transforms = Trans.Compose([
-            Trans.Resize(crop_size),
+            Trans.Resize([crop_size, crop_size]),
             Trans.ToTensor(),
             Trans.Normalize(mean=mean, std=std),
         ])
@@ -150,8 +151,8 @@ def chase_db_get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224,
     if train:
         return ChaseDB1SegmentationPresetTrain(base_size, crop_size, mean=mean, std=std)
     else:
-        return ChaseDB1SegmentationPresetEval(mean=mean, std=std)
-        # return ChaseDB1SegmentationResizePresetEval(base_size, crop_size, mean=mean, std=std)
+        # return ChaseDB1SegmentationPresetEval(mean=mean, std=std)
+        return ChaseDB1SegmentationResizePresetEval(base_size, crop_size, mean=mean, std=std)
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -229,8 +230,9 @@ class RITESegmentationPresetTrain:
 
 
 class RITESegmentationPresetEval:
-    def __init__(self, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+    def __init__(self, crop_size, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
         self.transforms = Trans.Compose([
+            Trans.Resize([crop_size, crop_size]),
             Trans.ToTensor(),
             Trans.Normalize(mean=mean, std=std),
         ])
@@ -246,7 +248,7 @@ def rite_get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.2
     if train:
         return RITESegmentationPresetTrain(base_size, crop_size, mean=mean, std=std)
     else:
-        return RITESegmentationPresetEval(mean=mean, std=std)
+        return RITESegmentationPresetEval(crop_size=crop_size, mean=mean, std=std)
 
 
 if __name__ == "__main__":

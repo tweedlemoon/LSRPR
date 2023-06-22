@@ -93,7 +93,6 @@ class Resize(object):
         :param image:tensor 将一个image重新定形（成一个正方形图片）resize
         :param target:tensor 将一个mask重新定形
         :return: tuple 图像目标对
-        将一组输入-目标按照生成的随机数进行放大或缩小，但图片的长宽比不变，随机的范围由上述max_size和min_size界定
         """
         size = self.size
         # 调试时候打印一下出来的size是多少，之后这行注释掉

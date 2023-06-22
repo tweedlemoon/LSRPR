@@ -3,6 +3,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from utils.handy_functions import init_weights
 
+"""
+This file contains UNet & AttentionUNet & R2UNet.
+"""
+
 
 class Pad(nn.Module):
     def __init__(self):

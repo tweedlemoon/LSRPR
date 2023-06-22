@@ -4,6 +4,9 @@ from models.attunetplus import AttU_Net_Plus
 from models.r2unet import *
 from models.sa_unet import SA_Unet
 from models.unet import create_unet_model
+from models.fanet import FANet
+from models.kiunet import kiunet
+from models.laddernet import LadderNetv6
 from utils.timer import Timer
 
 
@@ -17,6 +20,21 @@ class MakeNet:
         self.timer = Timer('Stage: Make Network ')
 
         self.model = None
+        # net_dict = {
+        #     # 'fcn': self.make_fcn(args),
+        #     'unet': self.make_unet(args),
+        #     'r2unet': self.make_r2unet(args),
+        #     'attunet': self.make_attunet(args),
+        #     'r2attunet': self.make_r2attunet(args),
+        #     'saunet': self.make_saunet(args),
+        #     'saunet64': self.make_saunet64(args),
+        #     'attunetplus': self.make_attunetplus(args),
+        #     'fanet': self.make_fanet(args),
+        #     'kiunet': self.make_kiunet(args),
+        #     'laddernet': self.make_laddernet(args)
+        # }
+        #
+        # _ = net_dict[args.back_bone]
         # 根据输入数据判断执行哪个backbone
         if args.back_bone == "fcn":
             self.make_fcn(args)
@@ -34,6 +52,12 @@ class MakeNet:
             self.make_saunet64(args)
         elif args.back_bone == 'attunetplus':
             self.make_attunetplus(args)
+        elif args.back_bone == 'fanet':
+            self.make_fanet(args)
+        elif args.back_bone == 'kiunet':
+            self.make_kiunet(args)
+        elif args.back_bone == 'laddernet':
+            self.make_laddernet(args)
 
         # 追踪迭代的变量作为一个list
         self.params_to_optimize = []
@@ -100,6 +124,21 @@ class MakeNet:
 
     def make_attunetplus(self, args):
         self.model = AttU_Net_Plus(output_ch=args.num_classes, sa=True, sa_kernel_size=7)
+        self.model.to(args.device)
+        print(self.model)
+
+    def make_fanet(self, args):
+        self.model = FANet()
+        self.model.to(args.device)
+        print(self.model)
+
+    def make_kiunet(self, args):
+        self.model = kiunet()
+        self.model.to(args.device)
+        print(self.model)
+
+    def make_laddernet(self, args):
+        self.model = LadderNetv6(num_classes=args.num_classes)
         self.model.to(args.device)
         print(self.model)
 

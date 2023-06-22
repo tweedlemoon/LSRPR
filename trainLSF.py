@@ -1,5 +1,4 @@
 import argparse
-
 from hyper_parameters import *
 from steps.make_data import MakeData
 from steps.make_net import MakeNet
@@ -9,7 +8,7 @@ from utils.timer import Timer
 my_params = HyperParameters()
 # 限制CPU进程数
 os.environ["OMP_NUM_THREADS"] = '1'
-os.environ["CUDA_VISIBLE_DEVICES"] = my_params.Which_GPU
+os.environ["CUDA_VISIBLE_DEVICES"] = which_gpu
 
 
 def parse_args():
@@ -23,7 +22,8 @@ def parse_args():
     parser.add_argument("--num-classes", default=my_params.Class_Num, type=int)
     parser.add_argument("--device", default=str(my_params.Device), type=str, help="training device")
     parser.add_argument("--back-bone", default=my_params.Back_Bone, type=str,
-                        choices=["fcn", "unet", "r2unet", "attunet", "r2attunet", 'saunet', 'saunet64', 'attunetplus'])
+                        choices=["fcn", "unet", "r2unet", "attunet", "r2attunet", 'saunet', 'saunet64', 'attunetplus',
+                                 'kiunet', 'laddernet', 'fanet'])
     parser.add_argument("--pretrained", "-p", default=my_params.Pretrained, type=str,
                         help="if load pretrained model, add here.")
     parser.add_argument('--step', default=my_params.Step, type=int,

@@ -1,6 +1,9 @@
 import argparse
 
 from hyper_parameters import *
+
+os.environ["OMP_NUM_THREADS"] = '1'
+os.environ["CUDA_VISIBLE_DEVICES"] = which_gpu
 from utils.handy_functions import *
 from models.unet import create_unet_model
 from models.r2unet import *
@@ -16,12 +19,9 @@ from steps.make_data_inference import MakeData as infmk
 from utils.color_palette import generate_color_img
 
 my_params = HyperParameters()
-# 限制CPU进程数
-os.environ["OMP_NUM_THREADS"] = '1'
-os.environ["CUDA_VISIBLE_DEVICES"] = my_params.Which_GPU
 
-Model_path = ''
-Manual = 'manual2'
+Model_path = 'experimental_data/DRIVE/model-unet-coe-0-time-20220517-1-best_dice-0.8185089230537415.pth'
+Manual = 'manual1'
 
 
 def parse_arguments():
@@ -402,4 +402,4 @@ if __name__ == '__main__':
     generate_path('predict_pic/')
 
     compute_index(args=args)
-    run_inference(args=args)
+    # run_inference(args=args)
