@@ -1,7 +1,7 @@
 import os
 
 # Define which GPU to use.
-which_gpu = '1'
+which_gpu = '3'
 os.environ["OMP_NUM_THREADS"] = '1'
 os.environ["CUDA_VISIBLE_DEVICES"] = which_gpu
 
@@ -16,7 +16,7 @@ Alter it to your own when you want to run it on your own pc or server.
 
 
 class HyperParameters(object):
-    def __init__(self, level_set_coe=0., data_name='Chase_db1', back_bone='laddernet', epoch=100, batch_size=4,
+    def __init__(self, level_set_coe=0., data_name='DRIVE', back_bone='r2unet', epoch=100, batch_size=2,
                  which_gpu=which_gpu, step=1,
                  pretrained=''):
         self.generate_dir()

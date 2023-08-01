@@ -9,6 +9,10 @@ from models.unet import create_unet_model
 from models.r2unet import *
 from models.sa_unet import SA_Unet
 from models.attunetplus import AttU_Net_Plus
+from models.kiunet import kiunet
+from models.laddernet import LadderNetv6
+from models.dunet import DUNetV1V2
+from models.fanet import FANet
 import PIL
 from torchvision import transforms
 
@@ -20,7 +24,7 @@ from utils.color_palette import generate_color_img
 
 my_params = HyperParameters()
 
-Model_path = 'experimental_data/DRIVE/model-unet-coe-0-time-20220517-1-best_dice-0.8185089230537415.pth'
+Model_path = 'save_weights/RITE/model-saunet-coe-0.0-time-20230623-111432-best_dice-0.7636436820030212-RITE.pth'
 Manual = 'manual1'
 
 
@@ -68,6 +72,12 @@ def create_model(args):
         return SA_Unet(base_size=64)
     elif args.back_bone == 'attunetplus':
         return AttU_Net_Plus(output_ch=args.num_classes + 1, sa=True)
+    elif args.back_bone == 'fanet':
+        return FANet()
+    elif args.back_bone == 'kiunet':
+        return kiunet()
+    elif args.back_bone == 'laddernet':
+        return LadderNetv6(num_classes=args.num_classes + 1)
 
 
 def compute_index(args):
@@ -117,7 +127,11 @@ def compute_index(args):
             #     ground_truth = transforms.Resize(480)(PIL.Image.open(ground_truth))
             #     ground_truth = transforms.ToTensor()(ground_truth.convert('1')).to(torch.int64)
             else:
-                ground_truth = transforms.ToTensor()(PIL.Image.open(ground_truth).convert('1')).to(torch.int64)
+                ground_truth = transforms.Resize(loader.dataset.transforms.transforms.transforms[0].size)(
+                    PIL.Image.open(ground_truth))
+                ground_truth = transforms.ToTensor()(ground_truth.convert('1')).to(torch.int64)
+                # ground_truth = transforms.ToTensor()(PIL.Image.open(ground_truth).convert('1')).to(torch.int64)
+
             ground_truth = ground_truth.to(device)
 
             img = img.to(device)
@@ -192,6 +206,12 @@ def run_inference(args):
                 ground_truth = PIL.Image.open(ground_truth)
                 # double_img_show(format_convert(original_img), format_convert(ground_truth))
 
+                # same size
+                ground_truth = transforms.Resize(loader.dataset.transforms.transforms.transforms[0].size)(
+                    ground_truth)
+                roi_mask = transforms.Resize(loader.dataset.transforms.transforms.transforms[0].size)(
+                    PIL.Image.open(roi_mask))
+
                 img = img.to(device)
                 net_output = model(img)['out']
                 # val_range(net_output, "Network output")
@@ -205,7 +225,8 @@ def run_inference(args):
                 # val_range(np_argmax_output, "Numpy argmax output")
 
                 # 把周围跟mask处理一下
-                roi_img = PIL.Image.open(roi_mask).convert('L')
+                # roi_img = PIL.Image.open(roi_mask).convert('L')
+                roi_img = roi_mask.convert('L')
                 roi_img = np.array(roi_img)
                 np_argmax_output[roi_img == 0] = 0
 
@@ -256,9 +277,13 @@ def run_inference(args):
                 np_argmax_output = np_argmax_output.astype(np.uint8).squeeze(0) * 255
                 # val_range(np_argmax_output, "Numpy argmax output")
 
+                ground_truth = transforms.Resize(loader.dataset.transforms.transforms.transforms[0].size)(
+                    ground_truth)
+                ground_truth = transforms.ToTensor()(ground_truth.convert('1')).to(torch.int64)
                 # 生成带颜色的图片
                 color_img = generate_color_img(
-                    ground_truth=transforms.ToTensor()(ground_truth.convert('1')).to(torch.int64),
+                    # ground_truth=transforms.ToTensor()(ground_truth.convert('1')).to(torch.int64),
+                    ground_truth=ground_truth,
                     prediction=argmax_output.cpu())
 
                 if args.show == 'yes':
@@ -401,5 +426,5 @@ if __name__ == '__main__':
     # 预测图存储位置
     generate_path('predict_pic/')
 
-    compute_index(args=args)
-    # run_inference(args=args)
+    # compute_index(args=args)
+    run_inference(args=args)

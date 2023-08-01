@@ -89,7 +89,7 @@ def drive_get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.
     # 此数据集的每张图片都是565*584形状的图片。
     base_size = 565
     # 裁剪尺寸为480*480，也就是说Unet输入的图片大小固定为480*480
-    crop_size = 480
+    crop_size = 565
 
     if train:
         return DriveSegmentationPresetTrain(base_size, crop_size, mean=mean, std=std)
@@ -243,7 +243,7 @@ class RITESegmentationPresetEval:
 
 def rite_get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
     base_size = 512
-    crop_size = 480
+    crop_size = 512
 
     if train:
         return RITESegmentationPresetTrain(base_size, crop_size, mean=mean, std=std)
