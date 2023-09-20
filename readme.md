@@ -136,3 +136,17 @@ nohup bash run.sh > run.log 2>&1 &
 ps -aux | grep run.sh
 ```
 
+### 引用 Citation
+```
+@article{LIU2024105428,
+    title = {Level set guided region prototype rectification network for retinal vessel segmentation},
+    journal = {Biomedical Signal Processing and Control},
+    volume = {87},
+    pages = {105428},
+    year = {2024},
+    issn = {1746-8094},
+    doi = {https://doi.org/10.1016/j.bspc.2023.105428},
+    url = {https://www.sciencedirect.com/science/article/pii/S1746809423008613},
+    author = {Yifei Liu and Qingtian Wu and Xueyu Liu and Junyu Lu and Zhenhuan Xu and Yongfei Wu and Shu Feng},
+}
+```
