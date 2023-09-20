@@ -1,5 +1,4 @@
-# 水平集指导区域特征修正的眼球血管分割  
-# Level Set Guided Region Prototype Rectification Network for Retina Vessel Segmentation
+# 水平集指导区域特征修正的眼球血管分割  Level Set Guided Region Prototype Rectification Network for Retina Vessel Segmentation
 
 ## 文章 Paper
 
@@ -136,7 +135,7 @@ nohup bash run.sh > run.log 2>&1 &
 ps -aux | grep run.sh
 ```
 
-### 引用 Citation
+## 引用 Citation
 ```
 @article{LIU2024105428,
     title = {Level set guided region prototype rectification network for retinal vessel segmentation},
