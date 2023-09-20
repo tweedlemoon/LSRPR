@@ -22,6 +22,7 @@ def parse_args():
     parser.add_argument("--num-classes", default=my_params.Class_Num, type=int)
     parser.add_argument("--device", default=str(my_params.Device), type=str, help="training device")
     parser.add_argument("--back-bone", default=my_params.Back_Bone, type=str,
+                        # laddernet/fanet may be unusable.
                         choices=["fcn", "unet", "r2unet", "attunet", "r2attunet", 'saunet', 'saunet64', 'attunetplus',
                                  'kiunet', 'laddernet', 'fanet'])
     parser.add_argument("--pretrained", "-p", default=my_params.Pretrained, type=str,

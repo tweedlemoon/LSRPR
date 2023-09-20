@@ -1,4 +1,13 @@
-# 水平集指导区域特征修正的眼球血管分割(Level Set Guided Region Prototype Rectification Network for Retina Vessel Segmentation)
+# 水平集指导区域特征修正的眼球血管分割  
+# Level Set Guided Region Prototype Rectification Network for Retina Vessel Segmentation
+
+## 文章 Paper
+
+Our article has been accepted by BSPC.
+
+Yifei Liu, Qingtian Wu, Xueyu Liu, Junyu Lu, Zhenhuan Xu, Yongfei Wu, and Shu Feng. "Level set guided region prototype rectification network for retinal vessel segmentation".Biomedical Signal Processing and Control 87 (2024): 105428.
+
+Link：[https://www.sciencedirect.com/science/article/pii/S1746809423008613](https://www.sciencedirect.com/science/article/pii/S1746809423008613)
 
 ## 简介 Introduction
 
@@ -89,6 +98,10 @@ Note: Our proposed level set loss is in /src/loss.py
 
 - **(Important) Modify the hyperparameters, and then train.**
 
+- 保持DRIVE、CHASE\_DB1和RITE的默认文件结构，然后指定数据集的文件路径。
+
+- Keep the default file structure for DRIVE, CHASE\_DB1, and RITE, and then specify the file path.
+
 They are in **hyper_parameters.py**
 
 ```bash
@@ -101,7 +114,7 @@ python trainLSF.py
 
 - 修改合适的超参数，然后生成结果。
 
-- **Modify the hyperparameters and generate the results.**
+- Modify the hyperparameters and generate the results.
 
 They are also in **hyper_parameters.py**
 
