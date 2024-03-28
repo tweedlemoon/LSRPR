@@ -16,7 +16,7 @@ Alter it to your own when you want to run it on your own pc or server.
 
 
 class HyperParameters(object):
-    def __init__(self, level_set_coe=0., data_name='DRIVE', back_bone='r2unet', epoch=100, batch_size=2,
+    def __init__(self, level_set_coe=0.00005, data_name='DRIVE', back_bone='attunet', epoch=100, batch_size=2,
                  which_gpu=which_gpu, step=1,
                  pretrained=''):
         self.generate_dir()

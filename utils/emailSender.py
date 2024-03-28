@@ -5,11 +5,11 @@ from email.utils import formataddr
 
 # 这里是Email的配置处
 # 发件邮箱
-EMAIL_ADDRESS = 'e_lyffly@126.com'
+EMAIL_ADDRESS = 'xxx@xxx.com'
 # 发件邮箱密码
-EMAIL_PASSWORD = '197379865'
+EMAIL_PASSWORD = ''
 # 收件邮箱，可以扩充
-RECEIVERS = ['197379865@qq.com', ]
+RECEIVERS = ['xxx@xxx.com', ]
 
 
 class EmailSender:

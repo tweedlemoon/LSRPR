@@ -426,5 +426,5 @@ if __name__ == '__main__':
     # 预测图存储位置
     generate_path('predict_pic/')
 
-    # compute_index(args=args)
-    run_inference(args=args)
+    compute_index(args=args)
+    # run_inference(args=args)
